@@ -27,28 +27,29 @@ def main_text():
 
 def exit_button():
     font_size = pixels2points(width / 40)
-    exitB = Button(root, text="Exit", width=width // 300, bg="#DC143C", command=root.destroy, font=("ariel", font_size),
+    exitB = Button(root, text="EXIT", width=width // 300, bg="#DC143C", command=root.destroy, font=("ariel", font_size),
                    fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN)
     exitB.pack(pady=(height * 0.25, 0))
 
 
-def login_button():
+def login_and_signup_buttons():
     font_size = pixels2points(width / 40)
-    loginB = Button(root, text="LOGIN", width=width // 300, bg="#32CD32", font=("ariel", font_size),
+
+    button_frame = Frame(root, bg=bg_color)
+    button_frame.pack(pady=(height // 10, 0))
+
+    loginB = Button(button_frame, text="LOGIN", width=width // 250, bg="#32CD32", font=("ariel", font_size),
                     fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN)
-    loginB.pack(padx=(0, width // 3), pady=(height // 10, 0))
+    loginB.pack(side=LEFT, padx=(0, width//5))
 
-
-def signup_button():
-    font_size = pixels2points(width / 40)
-    signupB = Button(root, text="LOGIN", width=width // 300, bg="#32CD32", font=("ariel", font_size),
+    signupB = Button(button_frame, text="SIGNUP", width=width // 250, bg="#00A36C", font=("ariel", font_size),
                      fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN)
-    signupB.pack(padx=(0, width // 3), pady=(height // 10, 0))
+    signupB.pack(side=LEFT)
 
 
 def main_window():
     main_text()
-    login_button()
+    login_and_signup_buttons()
     exit_button()
 
 
