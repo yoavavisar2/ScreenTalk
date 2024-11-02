@@ -36,7 +36,7 @@ def login_and_signup_buttons():
     font_size = pixels2points(width / 40)
 
     button_frame = Frame(root, bg=bg_color)
-    button_frame.pack(pady=(height // 10, 0))
+    button_frame.pack(pady=(height // 7, 0))
 
     loginB = Button(button_frame, text="LOGIN", width=width // 250, bg="#32CD32", font=("ariel", font_size),
                     fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN)
