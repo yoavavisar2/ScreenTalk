@@ -27,8 +27,9 @@ def main_text():
 
 def exit_button():
     font_size = pixels2points(width / 40)
-    exitB = Button(root, text="Exit", width=width//300, bg="#DC143C", command=root.destroy, font=("ariel", font_size))
-    exitB.pack()
+    exitB = Button(root, text="Exit", width=width//300, bg="#DC143C", command=root.destroy, font=("ariel", font_size),
+                   fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN)
+    exitB.pack(pady=(height * 0.5, 0))
 
 
 def main_window():
