@@ -1,4 +1,5 @@
 from tkinter import *
+from login_page import LoginPage
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
@@ -22,7 +23,7 @@ class App:
 
     def show_login(self):
         self.clear_frame()
-        print(123)
+        self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height)
 
     def login_and_signup_buttons(self):
         button_frame = Frame(self.current_frame, bg="#031E49")
