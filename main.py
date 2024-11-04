@@ -1,4 +1,5 @@
 from tkinter import *
+import LoginPage
 
 root = Tk()
 bg_color = "#031E49"
@@ -32,6 +33,12 @@ def exit_button():
     exitB.pack(pady=(height * 0.25, 0))
 
 
+def login():
+    for widget in root.winfo_children():
+        widget.destroy()
+    LoginPage.start()
+
+
 def login_and_signup_buttons():
     font_size = pixels2points(width / 40)
 
@@ -39,11 +46,11 @@ def login_and_signup_buttons():
     button_frame.pack(pady=(height // 7, 0))
 
     loginB = Button(button_frame, text="LOGIN", width=width // 250, bg="#32CD32", font=("ariel", font_size),
-                    fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN)
+                    fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN, command=login)
     loginB.pack(side=LEFT, padx=(0, width//5))
 
     signupB = Button(button_frame, text="SIGNUP", width=width // 250, bg="#00A36C", font=("ariel", font_size),
-                     fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN)
+                     fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN)
     signupB.pack(side=LEFT)
 
 
