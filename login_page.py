@@ -14,25 +14,26 @@ class LoginPage(Frame):
 
         Label(self, text="Username", font=("ariel", pixels2points(self.width/25)), bg="#031E49", fg="white").pack()
         username_entry = Entry(self, font=("ariel", pixels2points(self.width/50)), width=self.width//100, bg="lightgray")
-        username_entry.pack(pady=(0, 100))
+        username_entry.pack(pady=(0, self.height//10))
 
         # Password entry
-        Label(self, text="Password", font=("Helvetica", 12), bg="blue", fg="white").pack(pady=5)
-        password_entry = Entry(self, font=("Helvetica", 14), width=20, show="*", bg="lightgray")
-        password_entry.pack(pady=5)
+        Label(self, text="Password", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack()
+        password_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=self.width // 100,
+                               bg="lightgray", show="*")
+        password_entry.pack(pady=(0, self.height // 10))
 
-        # Buttons frame
-        buttons_frame = Frame(self, bg="blue")
-        buttons_frame.pack(pady=20)
+        buttons_frame = Frame(self, bg="#031E49")
+        buttons_frame.pack()
 
-        # Enter button
+        font_size = pixels2points(self.width / 40)
         enter_button = Button(
-            buttons_frame, text="Enter", font=("Helvetica", 12), bg="green", fg="white", width=10
+            buttons_frame, text="ENTER", width=self.width // 250, bg="#1EB500", font=("ariel", font_size),
+            fg="white", activebackground="#1EB500", activeforeground="white", bd=0, relief=SUNKEN
         )
-        enter_button.grid(row=0, column=0, padx=10)
+        enter_button.grid(row=0, column=0, padx=self.width//25)
 
-        # Back button
         back_button = Button(
-            buttons_frame, text="Back", font=("Helvetica", 12), bg="red", fg="white", width=10, command=back_command
+            buttons_frame, text="BACK", width=self.width // 250, bg="#DC143C", font=("ariel", font_size),
+            fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=back_command
         )
-        back_button.grid(row=0, column=1, padx=10)
+        back_button.grid(row=0, column=1, padx=self.width//25)
