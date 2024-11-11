@@ -2,8 +2,9 @@ import socket
 import threading
 
 class Client:
-    def __init__(self, ip):
-        self.ip = ip
+    def __init__(self, addr, conn):
+        self.addr = addr
+        self.conn = conn
 
 
 class Server:
@@ -14,7 +15,35 @@ class Server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((self.host, self.port))
         self.server.listen()
-        print(f"[STARTING] Server started on {self.host}:{self.port}")
+        print("[STARTING]")
+        self.start()
+
+    def handle_client(self, client: Client):
+        print("[NEW CONNECTION]")
+        self.clients.append(client)
+        connected = True
+        while connected:
+            try:
+                msg = client.conn.recv(1024).decode("utf-8")
+                if msg:
+                    print(f"[{client.addr}] {msg}")
+                    client.conn.send("Message received".encode("utf-8"))
+                else:
+                    connected = False
+            except:
+                connected = False
+
+        print(f"[DISCONNECT]")
+        self.clients.remove(client.conn)
+        client.conn.close()
+
+    def start(self):
+        print("[LISTENING]")
+        while True:
+            conn, addr = self.server.accept()
+            client_thread = threading.Thread(target=self.handle_client, args=(Client(addr, conn),))
+            client_thread.start()
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
 Server()
