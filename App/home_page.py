@@ -1,10 +1,10 @@
 from tkinter import *
-from App.login_page import LoginPage
+from login_page import LoginPage
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
 
-class App:
+class HomePage:
     def __init__(self, root):
         self.root = root
         self.root.title("Screen Talk")
@@ -55,5 +55,5 @@ class App:
 
 if __name__ == "__main__":
     root = Tk()
-    app = App(root)
+    app = HomePage(root)
     root.mainloop()

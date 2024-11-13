@@ -46,4 +46,5 @@ class Server:
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
-Server()
+if __name__ == '__main__':
+    Server()
