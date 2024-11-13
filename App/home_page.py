@@ -1,5 +1,5 @@
 from tkinter import *
-from login_page import LoginPage
+from App.login_page import LoginPage
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
