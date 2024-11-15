@@ -34,8 +34,11 @@ class Server:
                 connected = False
 
         print(f"[DISCONNECT]")
-        self.clients.remove(client.conn)
-        client.conn.close()
+        try:
+            self.clients.remove(client.conn)
+            client.conn.close()
+        except:
+            pass
 
     def start(self):
         print("[LISTENING]")
