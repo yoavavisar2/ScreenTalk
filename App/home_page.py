@@ -6,8 +6,9 @@ def pixels2points(pixels):
     return int(0.75 * pixels)
 
 class HomePage:
-    def __init__(self, root):
+    def __init__(self, root, conn):
         self.root = root
+        self.conn = conn
         self.root.title("Screen Talk")
         self.root.state('zoomed')
         self.root.overrideredirect(True)
@@ -25,11 +26,11 @@ class HomePage:
 
     def show_login(self):
         self.clear_frame()
-        self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height)
+        self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height, self.conn)
 
     def show_signup(self):
         self.clear_frame()
-        self.current_frame = SignUpPage(self.root, self.show_home_screen, self.width, self.height)
+        self.current_frame = SignUpPage(self.root, self.show_home_screen, self.width, self.height, self.conn)
 
     def login_and_signup_buttons(self):
         button_frame = Frame(self.current_frame, bg="#031E49")
@@ -57,9 +58,3 @@ class HomePage:
         Button(self.current_frame, text="EXIT", width=self.width // 300, bg="#DC143C", command=self.root.quit,
                font=("ariel", pixels2points(self.width/40)), fg="white", activebackground="#DC143C", activeforeground="white",
                bd=0, relief=SUNKEN).pack(pady=(self.height * 0.25, 0))
-
-
-if __name__ == "__main__":
-    root = Tk()
-    app = HomePage(root)
-    root.mainloop()

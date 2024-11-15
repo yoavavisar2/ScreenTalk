@@ -14,7 +14,7 @@ class App:
         self.client.connect((self.host, self.port))
 
         self.root = Tk()
-        HomePage(self.root)
+        HomePage(self.root, self.client)
         self.root.mainloop()
 
         self.client.close()

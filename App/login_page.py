@@ -4,8 +4,9 @@ def pixels2points(pixels):
     return int(0.75 * pixels)
 
 class LoginPage(Frame):
-    def __init__(self, root, back_command, width: int, height):
+    def __init__(self, root, back_command, width: int, height, conn):
         super().__init__(root, bg="#031E49")
+        self.conn = conn
         self.pack(fill="both", expand=True)
         self.width = width
         self.height = height
