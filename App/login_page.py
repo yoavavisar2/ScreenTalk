@@ -16,7 +16,6 @@ class LoginPage(Frame):
         username_entry = Entry(self, font=("ariel", pixels2points(self.width/50)), width=self.width//100, bg="lightgray")
         username_entry.pack(pady=(0, self.height//10))
 
-        # Password entry
         Label(self, text="Password", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack()
         password_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=self.width // 100,
                                bg="lightgray", show="*")

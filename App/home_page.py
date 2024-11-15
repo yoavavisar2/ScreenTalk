@@ -1,5 +1,6 @@
 from tkinter import *
 from login_page import LoginPage
+from signup_page import SignUpPage
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
@@ -26,6 +27,10 @@ class HomePage:
         self.clear_frame()
         self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height)
 
+    def show_signup(self):
+        self.clear_frame()
+        self.current_frame = SignUpPage(self.root, self.show_home_screen, self.width, self.height)
+
     def login_and_signup_buttons(self):
         button_frame = Frame(self.current_frame, bg="#031E49")
         button_frame.pack(pady=(self.height // 7, 0))
@@ -36,7 +41,7 @@ class HomePage:
         loginB.pack(side=LEFT, padx=(0, self.width // 5))
 
         signupB = Button(button_frame, text="SIGNUP", width=self.width // 250, bg="#00A36C", font=("ariel", font_size),
-                         fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN)
+                         fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=self.show_signup)
         signupB.pack(side=LEFT)
 
     def show_home_screen(self):
