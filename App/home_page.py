@@ -1,14 +1,15 @@
 from tkinter import *
 from login_page import LoginPage
 from signup_page import SignUpPage
+from client import Client
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
 
 class HomePage:
-    def __init__(self, root, conn):
+    def __init__(self, root, client: Client):
         self.root = root
-        self.conn = conn
+        self.client = client
         self.root.title("Screen Talk")
         self.root.state('zoomed')
         self.root.overrideredirect(True)
@@ -26,11 +27,11 @@ class HomePage:
 
     def show_login(self):
         self.clear_frame()
-        self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height, self.conn)
+        self.current_frame = LoginPage(self.root, self.show_home_screen, self.width, self.height, self.client)
 
     def show_signup(self):
         self.clear_frame()
-        self.current_frame = SignUpPage(self.root, self.show_home_screen, self.width, self.height, self.conn)
+        self.current_frame = SignUpPage(self.root, self.show_home_screen, self.width, self.height, self.client)
 
     def login_and_signup_buttons(self):
         button_frame = Frame(self.current_frame, bg="#031E49")

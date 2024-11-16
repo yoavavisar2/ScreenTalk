@@ -1,12 +1,14 @@
 from tkinter import *
+from client import Client
+
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
 
 class LoginPage(Frame):
-    def __init__(self, root, back_command, width: int, height, conn):
+    def __init__(self, root, back_command, width: int, height, client: Client):
         super().__init__(root, bg="#031E49")
-        self.conn = conn
+        self.client = client
         self.pack(fill="both", expand=True)
         self.width = width
         self.height = height

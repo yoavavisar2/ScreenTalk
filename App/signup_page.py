@@ -1,12 +1,14 @@
 from tkinter import *
+from client import Client
+
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
 
 class SignUpPage(Frame):
-    def __init__(self, root, back_command, width: int, height, conn):
+    def __init__(self, root, back_command, width: int, height, client: Client):
         super().__init__(root, bg="#031E49")
-        self.conn = conn
+        self.client = client
         self.pack(fill="both", expand=True)
         self.width = width
         self.height = height
@@ -70,7 +72,5 @@ class SignUpPage(Frame):
         back_button.grid(row=0, column=1, padx=self.width // 25)
 
     def submit(self):
-        self.first_name.get()
-        self.last_name.get()
-        self.username.get()
-        self.password.get()
+        data = self.client.encrypt(self.password.get())
+        self.client.client.send(data)

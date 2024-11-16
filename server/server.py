@@ -1,11 +1,36 @@
 import socket
 import threading
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+
+
+def make_keys():
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+    return private_key, public_key
 
 class Client:
     def __init__(self, addr, conn):
         self.addr = addr
         self.conn = conn
+        self.private_key, self.public_key = make_keys()
+        self.public_key_pem = self.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
 
+    def decrypt(self, encrypted_text):
+        decrypted_message = self.private_key.decrypt(
+            encrypted_text,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return decrypted_message
 
 class Server:
     def __init__(self, host="127.0.0.1", port=1234):
@@ -21,17 +46,17 @@ class Server:
     def handle_client(self, client: Client):
         print("[NEW CONNECTION]")
         self.clients.append(client)
+
+        client.conn.send(client.public_key_pem)
+
         connected = True
         while connected:
             try:
-                msg = client.conn.recv(1024).decode("utf-8")
-                if msg:
-                    print(f"[{client.addr}] {msg}")
-                    client.conn.send("Message received".encode("utf-8"))
-                else:
-                    connected = False
+                msg = client.conn.recv(1024)
+                msg = client.decrypt(msg).decode()
+
             except:
-                connected = False
+                pass
 
         print(f"[DISCONNECT]")
         try:

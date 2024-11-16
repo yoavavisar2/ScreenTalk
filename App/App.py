@@ -1,23 +1,18 @@
 import socket
 from home_page import HomePage
 from tkinter import *
-import threading
-from threading import Event
 import sys
+from client import Client
 
 class App:
-    def __init__(self, host='127.0.0.1', port=1234):
-        self.host = host
-        self.port = port
-
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((self.host, self.port))
+    def __init__(self):
+        self.client = Client()
 
         self.root = Tk()
         HomePage(self.root, self.client)
         self.root.mainloop()
 
-        self.client.close()
+        self.client.client.close()
         sys.exit()
 
 
