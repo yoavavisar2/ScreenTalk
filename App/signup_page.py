@@ -72,6 +72,6 @@ class SignUpPage(Frame):
         back_button.grid(row=0, column=1, padx=self.width // 25)
 
     def submit(self):
-        data = f"signup/{self.first_name.get()}/{self.last_name.get()}/{self.username.get()}/{self.password.get()}"
+        data = f"signup:{self.first_name.get()}/{self.last_name.get()}/{self.username.get()}/{self.password.get()}"
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)

@@ -54,7 +54,11 @@ class Server:
             try:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
-                print(msg)
+                header, data = msg.split(":")
+                if header == "signup":
+                    self.handel_signup(data)
+                elif header == "login":
+                    self.handel_login(data)
             except:
                 connected = False
 
@@ -64,6 +68,14 @@ class Server:
             client.conn.close()
         except:
             pass
+
+    def handel_signup(self, data):
+        # check if user exists and add to sql
+        pass
+
+    def handel_login(self, data):
+        # log the user
+        print(data)
 
     def start(self):
         print("[LISTENING]")
