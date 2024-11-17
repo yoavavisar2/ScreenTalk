@@ -1,4 +1,3 @@
-import socket
 from home_page import HomePage
 from tkinter import *
 import sys
