@@ -54,9 +54,9 @@ class Server:
             try:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
-
+                print(msg)
             except:
-                pass
+                connected = False
 
         print(f"[DISCONNECT]")
         try:

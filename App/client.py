@@ -12,7 +12,6 @@ class Client:
         self.client.connect((self.host, self.port))
         self.public_key_pem = self.client.recv(1024)
         self.public_key = load_pem_public_key(self.public_key_pem)
-        print(self.public_key)
 
     def encrypt(self, text):
         encrypted_text = self.public_key.encrypt(text.encode(), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
