@@ -4,6 +4,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
+import sqlite3
 
 
 def make_keys():
@@ -20,6 +21,8 @@ class Client:
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
+        self.connection = sqlite3.connect("aquarium.db")
+        self.cursor = self.connection.cursor()
 
     def decrypt(self, encrypted_text):
         decrypted_message = self.private_key.decrypt(
