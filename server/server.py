@@ -5,6 +5,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 import sqlite3
+from hashlib import sha256
 
 
 def make_keys():
@@ -12,17 +13,18 @@ def make_keys():
     public_key = private_key.public_key()
     return private_key, public_key
 
+
 class Client:
     def __init__(self, addr, conn):
         self.addr = addr
         self.conn = conn
+        self.connection = sqlite3.connect("users.db")
+        self.cursor = self.connection.cursor()
         self.private_key, self.public_key = make_keys()
         self.public_key_pem = self.public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
-        self.connection = sqlite3.connect("aquarium.db")
-        self.cursor = self.connection.cursor()
 
     def decrypt(self, encrypted_text):
         decrypted_message = self.private_key.decrypt(
@@ -34,6 +36,12 @@ class Client:
             )
         )
         return decrypted_message
+
+
+def is_user_exist(username, cursor: sqlite3.Cursor):
+    cursor.execute('SELECT 1 FROM users WHERE username = ?', (username,))
+    return cursor.fetchone() is not None
+
 
 class Server:
     def __init__(self, host="127.0.0.1", port=1234):
@@ -62,7 +70,8 @@ class Server:
                     self.handel_signup(data)
                 elif header == "login":
                     self.handel_login(data)
-            except:
+            except Exception as e:
+                print(e)
                 connected = False
 
         print(f"[DISCONNECT]")
@@ -73,12 +82,20 @@ class Server:
             pass
 
     def handel_signup(self, data):
-        # check if user exists and add to sql
-        pass
+        values = data.split('/')
+        values = [sha256(value.encode('utf-8')).hexdigest() for value in values]
+        first_name, second_name, username, password = values
+
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+
+        if is_user_exist(username, cursor):
+            # make new user
+            pass
 
     def handel_login(self, data):
         # log the user
-        print(data)
+        pass
 
     def start(self):
         print("[LISTENING]")
