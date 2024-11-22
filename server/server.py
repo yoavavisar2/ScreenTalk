@@ -6,7 +6,16 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 import sqlite3
 from hashlib import sha256
+import os
 
+pepper = "yoav123"
+
+def hashing(text, salt):
+    global pepper
+    data = salt + text.encode() + pepper.encode()
+    for _ in range(10):
+        data = sha256(data).digest()
+    return data
 
 def make_keys():
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
@@ -81,17 +90,23 @@ class Server:
         except:
             pass
 
+    @staticmethod
     def handel_signup(self, data):
         values = data.split('/')
-        values = [sha256(value.encode('utf-8')).hexdigest() for value in values]
         first_name, second_name, username, password = values
+
+        salt = os.urandom(16)
+
+        password = hashing(password, salt)
 
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
 
-        if is_user_exist(username, cursor):
-            # make new user
-            pass
+        if not is_user_exist(username, cursor):
+            cursor.execute("""
+            INSERT INTO users (FirstName, LastName, Username, Password, salt) VALUES (?, ?, ?, ?, ?)
+            """, (first_name, second_name, username, password, salt))
+            conn.commit()
 
     def handel_login(self, data):
         # log the user
