@@ -76,7 +76,10 @@ class Server:
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
                 if header == "signup":
-                    self.handel_signup(data)
+                    if self.handel_signup(data):
+                        client.conn.send("signup_success".encode())
+                    else:
+                        client.conn.send("signup_failed".encode())
                 elif header == "login":
                     self.handel_login(data)
             except Exception as e:
@@ -91,7 +94,7 @@ class Server:
             pass
 
     @staticmethod
-    def handel_signup(self, data):
+    def handel_signup(data):
         values = data.split('/')
         first_name, second_name, username, password = values
 
@@ -107,10 +110,22 @@ class Server:
             INSERT INTO users (FirstName, LastName, Username, Password, salt) VALUES (?, ?, ?, ?, ?)
             """, (first_name, second_name, username, password, salt))
             conn.commit()
+            return True
+        else:
+            return False
 
     def handel_login(self, data):
-        # log the user
-        pass
+        username, password = data.split('/')
+
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+
+        if is_user_exist(username, cursor):
+            salt = None
+            # get salt
+
+            password_hash = hashing(password, salt)
+            print(password_hash)
 
     def start(self):
         print("[LISTENING]")

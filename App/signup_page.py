@@ -75,3 +75,11 @@ class SignUpPage(Frame):
         data = f"signup:{self.first_name.get()}/{self.last_name.get()}/{self.username.get()}/{self.password.get()}"
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)
+
+        msg = self.client.client.recv(1024).decode()
+        if msg == "signup_success":
+            # move on
+            pass
+        if msg == "signup_failed":
+            # again
+            pass
