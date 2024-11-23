@@ -47,3 +47,15 @@ class LoginPage(Frame):
         data = f"login:{self.username.get()}/{self.password.get()}"
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)
+
+        msg = self.client.client.recv(1024).decode()
+        if msg == "login_success":
+            # TODO: move on
+            pass
+        elif msg == "login_failed":
+            self.username.set("")
+            self.password.set("")
+            Label(self, text="Login Failed", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                  fg="red").pack(
+                pady=self.height // 20)
+

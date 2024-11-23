@@ -76,12 +76,9 @@ class Server:
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
                 if header == "signup":
-                    if self.handel_signup(data):
-                        client.conn.send("signup_success".encode())
-                    else:
-                        client.conn.send("signup_failed".encode())
+                    self.handel_signup(data, client.conn)
                 elif header == "login":
-                    self.handel_login(data)
+                    self.handel_login(data, client.conn)
             except Exception as e:
                 print(e)
                 connected = False
@@ -94,7 +91,7 @@ class Server:
             pass
 
     @staticmethod
-    def handel_signup(data):
+    def handel_signup(data, client_conn: socket):
         values = data.split('/')
         first_name, second_name, username, password = values
 
@@ -110,22 +107,31 @@ class Server:
             INSERT INTO users (FirstName, LastName, Username, Password, salt) VALUES (?, ?, ?, ?, ?)
             """, (first_name, second_name, username, password, salt))
             conn.commit()
-            return True
+            client_conn.send("signup_success".encode())
         else:
-            return False
+            client_conn.send("signup_failed".encode())
 
-    def handel_login(self, data):
+    @staticmethod
+    def handel_login(data, client_conn: socket):
         username, password = data.split('/')
 
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
 
         if is_user_exist(username, cursor):
-            salt = None
-            # get salt
+            cursor.execute("SELECT salt FROM users WHERE username = ?", (username,))
+            salt = cursor.fetchone()[0]
 
             password_hash = hashing(password, salt)
-            print(password_hash)
+
+            cursor.execute("SELECT Password FROM users WHERE username = ?", (username,))
+            db_password = cursor.fetchone()[0]
+            if password_hash == db_password:
+                client_conn.send("login_success".encode())
+            else:
+                client_conn.send("login_failed".encode())
+        else:
+            client_conn.send("login_failed".encode())
 
     def start(self):
         print("[LISTENING]")

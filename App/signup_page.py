@@ -78,8 +78,12 @@ class SignUpPage(Frame):
 
         msg = self.client.client.recv(1024).decode()
         if msg == "signup_success":
-            # move on
+            # TODO: move on
             pass
-        if msg == "signup_failed":
-            # again
-            pass
+        elif msg == "signup_failed":
+            self.first_name.set("")
+            self.last_name.set("")
+            self.username.set("")
+            self.password.set("")
+            Label(self, text="Signup Failed", font=("ariel", pixels2points(self.width / 50)), bg="#031E49", fg="red").pack(
+                pady=self.height // 20)
