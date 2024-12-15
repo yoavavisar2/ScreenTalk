@@ -127,7 +127,13 @@ class Server:
             cursor.execute("SELECT Password FROM users WHERE username = ?", (username,))
             db_password = cursor.fetchone()[0]
             if password_hash == db_password:
-                client_conn.send("login_success".encode())
+                cursor.execute("SELECT FirstName, LastName FROM users WHERE username = ?", (username,))
+                result = cursor.fetchall()
+                user = result[0]
+                first = user[0]
+                last = user[1]
+
+                client_conn.send(f"login_success:{first}:{last}".encode())
             else:
                 client_conn.send("login_failed".encode())
         else:

@@ -72,13 +72,18 @@ class SignUpPage(Frame):
         back_button.grid(row=0, column=1, padx=self.width // 25)
 
     def submit(self):
-        data = f"signup:{self.first_name.get()}/{self.last_name.get()}/{self.username.get()}/{self.password.get()}"
+        first = self.first_name.get()
+        second = self.last_name.get()
+        username = self.username.get()
+
+        data = f"signup:{first}/{second}/{username}/{self.password.get()}"
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)
 
         msg = self.client.client.recv(1024).decode()
         if msg == "signup_success":
-            # TODO: move on
+            self.client.logged(first, second, username)
+            # TODO: move on & check if works
             pass
         elif msg == "signup_failed":
             self.first_name.set("")

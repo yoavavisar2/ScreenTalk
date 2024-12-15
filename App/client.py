@@ -3,8 +3,21 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
-class Client:
+class LoggedUser:
+    def __init__(self):
+        self.first_name = None
+        self.second_name = None
+        self.username = None
+
+    def logged(self, first, second, username):
+        self.first_name = first
+        self.second_name = second
+        self.username = username
+
+
+class Client(LoggedUser):
     def __init__(self, host='127.0.0.1', port=1234):
+        super().__init__()
         self.host = host
         self.port = port
 
