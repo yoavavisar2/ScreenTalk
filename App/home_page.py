@@ -3,8 +3,10 @@ from login_page import LoginPage
 from signup_page import SignUpPage
 from client import Client
 
+
 def pixels2points(pixels):
     return int(0.75 * pixels)
+
 
 class HomePage:
     def __init__(self, root, client: Client):
@@ -38,11 +40,11 @@ class HomePage:
         button_frame.pack(pady=(self.height // 7, 0))
         font_size = pixels2points(self.width / 40)
 
-        loginB = Button(button_frame, text="LOGIN", width=self.width // 250, bg="#32CD32", font=("ariel", font_size),
+        loginB = Button(button_frame, text="LOGIN", width=self.width // 150, bg="#32CD32", font=("ariel", font_size),
                         fg="white", activebackground="#32CD32", activeforeground="white", bd=0, relief=SUNKEN, command=self.show_login)
         loginB.pack(side=LEFT, padx=(0, self.width // 5))
 
-        signupB = Button(button_frame, text="SIGNUP", width=self.width // 250, bg="#00A36C", font=("ariel", font_size),
+        signupB = Button(button_frame, text="SIGNUP", width=self.width // 150, bg="#00A36C", font=("ariel", font_size),
                          fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=self.show_signup)
         signupB.pack(side=LEFT)
 
@@ -56,6 +58,6 @@ class HomePage:
 
         self.login_and_signup_buttons()
 
-        Button(self.current_frame, text="EXIT", width=self.width // 300, bg="#DC143C", command=self.root.quit,
+        Button(self.current_frame, text="EXIT", width=self.width // 150, bg="#DC143C", command=self.root.quit,
                font=("ariel", pixels2points(self.width/40)), fg="white", activebackground="#DC143C", activeforeground="white",
                bd=0, relief=SUNKEN).pack(pady=(self.height * 0.25, 0))

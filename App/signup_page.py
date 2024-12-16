@@ -60,13 +60,13 @@ class SignUpPage(Frame):
 
         font_size = pixels2points(self.width / 40)
         enter_button = Button(
-            buttons_frame, text="ENTER", width=self.width // 250, bg="#1EB500", font=("ariel", font_size),
+            buttons_frame, text="ENTER", width=self.width // 150, bg="#1EB500", font=("ariel", font_size),
             fg="white", activebackground="#1EB500", activeforeground="white", bd=0, relief=SUNKEN, command=self.submit
         )
         enter_button.grid(row=0, column=0, padx=self.width // 25)
 
         back_button = Button(
-            buttons_frame, text="BACK", width=self.width // 250, bg="#DC143C", font=("ariel", font_size),
+            buttons_frame, text="BACK", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
             fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=back_command
         )
         back_button.grid(row=0, column=1, padx=self.width // 25)

@@ -3,6 +3,7 @@ from tkinter import *
 import sys
 from client import Client
 
+
 class App:
     def __init__(self):
         self.client = Client()
