@@ -1,9 +1,11 @@
 from tkinter import *
 from client import Client
+from choose_page import ChoosePage
 
 
 def pixels2points(pixels):
     return int(0.75 * pixels)
+
 
 class LoginPage(Frame):
     def __init__(self, root, back_command, width: int, height, client: Client):
@@ -55,14 +57,13 @@ class LoginPage(Frame):
             header, first, second = msg.split(":")
             if header == "login_success":
                 self.client.logged(first, second, username)
-                # TODO: move on & check if works
+                for widget in self.winfo_children():
+                    widget.destroy()
+                ChoosePage(self, self.width, self.height, self.client)
         except:
-            pass
-
-        if msg == "login_failed":
-            self.username.set("")
-            self.password.set("")
-            Label(self, text="Login Failed", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
-                  fg="red").pack(
-                pady=self.height // 20)
-
+            if msg == "login_failed":
+                self.username.set("")
+                self.password.set("")
+                Label(self, text="Login Failed", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                      fg="red").pack(
+                    pady=self.height // 20)
