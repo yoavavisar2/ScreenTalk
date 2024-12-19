@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
+
 class LoggedUser:
     def __init__(self):
         self.first_name = None

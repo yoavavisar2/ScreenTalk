@@ -10,12 +10,14 @@ import os
 
 pepper = "yoav123"
 
+
 def hashing(text, salt):
     global pepper
     data = salt + text.encode() + pepper.encode()
     for _ in range(10):
         data = sha256(data).digest()
     return data
+
 
 def make_keys():
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
