@@ -31,11 +31,11 @@ class Client:
         self.conn = conn
         self.connection = sqlite3.connect("users.db")
         self.cursor = self.connection.cursor()
-        self.private_key, self.public_key = make_keys()
-        self.public_key_pem = self.public_key.public_bytes(
+        self.private_key, public_key = make_keys()
+        self.public_key_pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
+        ) # TODO: keys
 
     def decrypt(self, encrypted_text):
         decrypted_message = self.private_key.decrypt(
@@ -47,6 +47,11 @@ class Client:
             )
         )
         return decrypted_message
+
+    def encrypt(self, text):
+        encrypted_text = self.public_key.encrypt(text.encode(), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                             algorithm=hashes.SHA256(), label=None))
+        return encrypted_text
 
 
 def is_user_exist(username, cursor: sqlite3.Cursor):
