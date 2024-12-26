@@ -1,5 +1,6 @@
 from tkinter import *
 from client import Client
+from choose_page import ChoosePage
 
 
 def pixels2points(pixels):
@@ -84,8 +85,9 @@ class SignUpPage(Frame):
         msg = self.client.decrypt(msg)
         if msg == "signup_success":
             self.client.logged(first, second, username)
-            # TODO: move on & check if works
-            pass
+            for widget in self.winfo_children():
+                widget.destroy()
+            ChoosePage(self, self.width, self.height, self.client)
         elif msg == "signup_failed":
             self.first_name.set("")
             self.last_name.set("")

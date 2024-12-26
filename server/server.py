@@ -28,6 +28,8 @@ def make_keys():
 
 class Client:
     def __init__(self, addr, conn):
+        self.username = None
+
         self.addr = addr
         self.conn = conn
         self.connection = sqlite3.connect("users.db")
@@ -48,11 +50,16 @@ class Client:
                 label=None
             )
         )
+
         return decrypted_message
 
     def encrypt(self, text):
-        encrypted_text = self.public_key.encrypt(text.encode(), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                                             algorithm=hashes.SHA256(), label=None))
+        encrypted_text = self.public_key.encrypt(
+            text.encode(),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None))
         return encrypted_text
 
 
@@ -77,7 +84,7 @@ class Server:
         self.clients.append(client)
 
         client.conn.send(client.public_key_pem)
-        public_key_pem = client.conn.recv(1024)
+        public_key_pem = client.conn.recv(4096)
         client.public_key = load_pem_public_key(public_key_pem)
 
         connected = True
@@ -86,12 +93,14 @@ class Server:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
+
                 if header == "signup":
                     self.handel_signup(data, client)
+
                 elif header == "login":
                     self.handel_login(data, client)
-            except Exception as e:
-                print(e)
+
+            except Exception:
                 connected = False
 
         print(f"[DISCONNECT]")
@@ -118,9 +127,10 @@ class Server:
             INSERT INTO users (FirstName, LastName, Username, Password, salt) VALUES (?, ?, ?, ?, ?)
             """, (first_name, second_name, username, password, salt))
             conn.commit()
-            client.conn.send(client.encrypt("signup_success").encode())
+            client.username = username
+            client.conn.send(client.encrypt("signup_success"))
         else:
-            client.conn.send(client.encrypt("signup_failed").encode())
+            client.conn.send(client.encrypt("signup_failed"))
 
     @staticmethod
     def handel_login(data, client):
@@ -139,10 +149,8 @@ class Server:
             db_password = cursor.fetchone()[0]
             if password_hash == db_password:
                 cursor.execute("SELECT FirstName, LastName FROM users WHERE username = ?", (username,))
-                result = cursor.fetchall()
-                user = result[0]
-                first = user[0]
-                last = user[1]
+
+                client.username = username
 
                 client.conn.send(client.encrypt("login_success:{first}:{last}"))
             else:

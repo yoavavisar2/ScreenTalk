@@ -21,9 +21,11 @@ class ChoosePage(Frame):
 
     def control(self):
         pass
+    # TODO: send the server this user is control and receive allow list
 
     def allow(self):
         pass
+    # TODO: send the server that this user is in allow list
 
     def buttons(self):
         button_frame = Frame(self, bg="#031E49")
@@ -39,3 +41,8 @@ class ChoosePage(Frame):
                        fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN,
                        command=self.allow)
         allow.pack(side=LEFT)
+
+        Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", command=self.quit,
+               font=("ariel", pixels2points(self.width / 40)), fg="white", activebackground="#DC143C",
+               activeforeground="white",
+               bd=0, relief=SUNKEN).pack(pady=(self.height * 0.25, 0))
