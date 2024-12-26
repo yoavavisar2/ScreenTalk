@@ -40,6 +40,7 @@ class Client(LoggedUser):
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
+        self.client.send(self.public_key_pem)
 
     def encrypt(self, text):
         encrypted_text = self.public_key.encrypt(text.encode(), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),

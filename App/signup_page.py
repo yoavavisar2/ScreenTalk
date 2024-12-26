@@ -80,7 +80,8 @@ class SignUpPage(Frame):
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)
 
-        msg = self.client.client.recv(1024).decode()
+        msg = self.client.client.recv(1024)
+        msg = self.client.decrypt(msg)
         if msg == "signup_success":
             self.client.logged(first, second, username)
             # TODO: move on & check if works

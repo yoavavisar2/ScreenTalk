@@ -52,7 +52,8 @@ class LoginPage(Frame):
         encrypted_data = self.client.encrypt(data)
         self.client.client.send(encrypted_data)
 
-        msg = self.client.client.recv(1024).decode()
+        msg = self.client.client.recv(1024)
+        msg = self.client.decrypt(msg).decode()
         try:
             header, first, second = msg.split(":")
             if header == "login_success":

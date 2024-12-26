@@ -3,6 +3,7 @@ import threading
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.primitives import hashes
 import sqlite3
 from hashlib import sha256
@@ -35,7 +36,8 @@ class Client:
         self.public_key_pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ) # TODO: keys
+        )
+        self.public_key = None
 
     def decrypt(self, encrypted_text):
         decrypted_message = self.private_key.decrypt(
@@ -75,6 +77,8 @@ class Server:
         self.clients.append(client)
 
         client.conn.send(client.public_key_pem)
+        public_key_pem = client.conn.recv(1024)
+        client.public_key = load_pem_public_key(public_key_pem)
 
         connected = True
         while connected:
@@ -83,9 +87,9 @@ class Server:
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
                 if header == "signup":
-                    self.handel_signup(data, client.conn)
+                    self.handel_signup(data, client)
                 elif header == "login":
-                    self.handel_login(data, client.conn)
+                    self.handel_login(data, client)
             except Exception as e:
                 print(e)
                 connected = False
@@ -98,7 +102,7 @@ class Server:
             pass
 
     @staticmethod
-    def handel_signup(data, client_conn: socket):
+    def handel_signup(data, client):
         values = data.split('/')
         first_name, second_name, username, password = values
 
@@ -114,12 +118,12 @@ class Server:
             INSERT INTO users (FirstName, LastName, Username, Password, salt) VALUES (?, ?, ?, ?, ?)
             """, (first_name, second_name, username, password, salt))
             conn.commit()
-            client_conn.send("signup_success".encode())
+            client.conn.send(client.encrypt("signup_success").encode())
         else:
-            client_conn.send("signup_failed".encode())
+            client.conn.send(client.encrypt("signup_failed").encode())
 
     @staticmethod
-    def handel_login(data, client_conn: socket):
+    def handel_login(data, client):
         username, password = data.split('/')
 
         conn = sqlite3.connect("users.db")
@@ -140,11 +144,11 @@ class Server:
                 first = user[0]
                 last = user[1]
 
-                client_conn.send(f"login_success:{first}:{last}".encode())
+                client.conn.send(client.encrypt("login_success:{first}:{last}"))
             else:
-                client_conn.send("login_failed".encode())
+                client.conn.send(client.encrypt("login_failed"))
         else:
-            client_conn.send("login_failed".encode())
+            client.conn.send(client.encrypt("login_failed"))
 
     def start(self):
         print("[LISTENING]")
