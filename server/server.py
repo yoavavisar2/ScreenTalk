@@ -129,8 +129,10 @@ class Server:
             conn.commit()
             client.username = username
             client.conn.send(client.encrypt("signup_success"))
+            return True
         else:
             client.conn.send(client.encrypt("signup_failed"))
+            return False
 
     @staticmethod
     def handel_login(data, client):
@@ -153,10 +155,13 @@ class Server:
                 client.username = username
 
                 client.conn.send(client.encrypt("login_success:{first}:{last}"))
+                return True
             else:
                 client.conn.send(client.encrypt("login_failed"))
+                return False
         else:
             client.conn.send(client.encrypt("login_failed"))
+            return False
 
     def start(self):
         print("[LISTENING]")

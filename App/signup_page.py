@@ -82,7 +82,7 @@ class SignUpPage(Frame):
         self.client.client.send(encrypted_data)
 
         msg = self.client.client.recv(1024)
-        msg = self.client.decrypt(msg)
+        msg = self.client.decrypt(msg).decode()
         if msg == "signup_success":
             self.client.logged(first, second, username)
             for widget in self.winfo_children():
