@@ -88,17 +88,22 @@ class Server:
         client.public_key = load_pem_public_key(public_key_pem)
 
         connected = True
+        signed = False
         while connected:
             try:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
 
-                if header == "signup":
-                    self.handel_signup(data, client)
+                if not signed:
+                    if header == "signup":
+                        signed = self.handel_signup(data, client)
 
-                elif header == "login":
-                    self.handel_login(data, client)
+                    elif header == "login":
+                        signed = self.handel_login(data, client)
+                else:
+                    pass
+                    # TODO: allow and control
 
             except Exception:
                 connected = False
