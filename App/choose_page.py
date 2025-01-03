@@ -27,6 +27,28 @@ class ChoosePage(Frame):
         encrypted_msg = self.client.encrypt("allow:")
         self.client.client.send(encrypted_msg)
 
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        text = "waiting for connection..."
+        Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
+
+        font_size = pixels2points(self.width // 50)
+        back = Button(self, text="BACK", width=self.width // 100, bg="#DC143C", font=("ariel", font_size), fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.back)
+        back.pack(pady=self.height//10)
+
+    def back(self):
+        encrypted_msg = self.client.encrypt("ExitAllow:")
+        self.client.client.send(encrypted_msg)
+
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        Label(self, text=f"welcome {self.client.username}", font=("ariel", pixels2points(self.width / 20)),
+              bg="#031E49", fg="white").pack(pady=self.height // 20)
+
+        self.buttons()
+
     def buttons(self):
         button_frame = Frame(self, bg="#031E49")
         button_frame.pack(pady=(self.height // 7, 0))

@@ -106,6 +106,8 @@ class Server:
                 else:
                     if header == "allow":
                         self.allow_list.append(client)
+                    if header == "ExitAllow":
+                        self.allow_list.remove(client)
             except Exception:
                 connected = False
 
