@@ -72,6 +72,7 @@ class Server:
     def __init__(self, host="127.0.0.1", port=1234):
         self.clients = []
         self.allow_list = []
+        self.control_list = []
 
         self.host = host
         self.port = port
@@ -108,6 +109,8 @@ class Server:
                         self.allow_list.append(client)
                     if header == "ExitAllow":
                         self.allow_list.remove(client)
+                    if header == "control":
+                        self.control_list.append(client)
             except Exception:
                 connected = False
 

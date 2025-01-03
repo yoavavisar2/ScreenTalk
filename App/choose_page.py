@@ -20,8 +20,14 @@ class ChoosePage(Frame):
         self.buttons()
 
     def control(self):
-        pass
-    # TODO: send the server this user is control and receive allow list
+        encrypted_msg = self.client.encrypt("control:")
+        self.client.client.send(encrypted_msg)
+
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        text = "choose user to control"
+        Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
@@ -36,6 +42,7 @@ class ChoosePage(Frame):
         font_size = pixels2points(self.width // 50)
         back = Button(self, text="BACK", width=self.width // 100, bg="#DC143C", font=("ariel", font_size), fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.back)
         back.pack(pady=self.height//10)
+        # TODO: receive requests
 
     def back(self):
         encrypted_msg = self.client.encrypt("ExitAllow:")
