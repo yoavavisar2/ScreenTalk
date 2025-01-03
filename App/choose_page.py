@@ -24,8 +24,8 @@ class ChoosePage(Frame):
     # TODO: send the server this user is control and receive allow list
 
     def allow(self):
-        pass
-    # TODO: send the server that this user is in allow list
+        encrypted_msg = self.client.encrypt("allow:")
+        self.client.client.send(encrypted_msg)
 
     def buttons(self):
         button_frame = Frame(self, bg="#031E49")

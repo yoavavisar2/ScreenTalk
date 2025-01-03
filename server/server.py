@@ -71,6 +71,8 @@ def is_user_exist(username, cursor: sqlite3.Cursor):
 class Server:
     def __init__(self, host="127.0.0.1", port=1234):
         self.clients = []
+        self.allow_list = []
+
         self.host = host
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,9 +104,8 @@ class Server:
                     elif header == "login":
                         signed = self.handel_login(data, client)
                 else:
-                    pass
-                    # TODO: allow and control
-
+                    if header == "allow":
+                        self.allow_list.append(client)
             except Exception:
                 connected = False
 
@@ -112,7 +113,7 @@ class Server:
         try:
             self.clients.remove(client.conn)
             client.conn.close()
-        except:
+        except Exception:
             pass
 
     @staticmethod
