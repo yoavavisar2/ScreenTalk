@@ -28,6 +28,11 @@ class ChoosePage(Frame):
 
         text = "choose user to control"
         Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
+        choose = False
+        while not choose:
+            msg = self.client.client.recv(1024)
+            data = self.client.decrypt(msg).decode()
+            print(data)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")

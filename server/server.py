@@ -73,6 +73,7 @@ class Server:
         self.clients = []
         self.allow_list = []
         self.control_list = []
+        self.connected = True
 
         self.host = host
         self.port = port
@@ -90,9 +91,8 @@ class Server:
         public_key_pem = client.conn.recv(4096)
         client.public_key = load_pem_public_key(public_key_pem)
 
-        connected = True
         signed = False
-        while connected:
+        while self.connected:
             try:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
@@ -112,7 +112,7 @@ class Server:
                     if header == "control":
                         self.control_list.append(client)
             except Exception:
-                connected = False
+                self.connected = False
 
         print(f"[DISCONNECT]")
         try:
@@ -174,7 +174,16 @@ class Server:
             client.conn.send(client.encrypt("login_failed"))
             return False
 
+    def broadcast_allow_to_control(self):
+        while self.connected:
+            text = ""
+            for client in self.allow_list:
+                text += client.username + ":"
+            for client in self.control_list:
+                client.conn.send(client.encrypt(text))
+
     def start(self):
+        threading.Thread(target=self.broadcast_allow_to_control).start()
         print("[LISTENING]")
         while True:
             conn, addr = self.server.accept()
