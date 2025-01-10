@@ -111,6 +111,8 @@ class Server:
                         self.allow_list.remove(client)
                     if header == "control":
                         self.control_list.append(client)
+                    if header == "choose":
+                        print(data)
             except Exception:
                 self.connected = False
 

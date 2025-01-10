@@ -20,6 +20,15 @@ class ChoosePage(Frame):
         self.buttons()
 
     def control(self):
+        def send_choose(username):
+            try:
+                txt = "choose:" + username
+                message = self.client.encrypt(data)
+                self.client.client.send(message)
+            except:
+                pass
+                # Keep here
+
         encrypted_msg = self.client.encrypt("control:")
         self.client.client.send(encrypted_msg)
 
@@ -31,15 +40,13 @@ class ChoosePage(Frame):
         font_size = pixels2points(self.width // 50)
         choose = False
         while not choose:
-            try:
-                msg = self.client.client.recv(4096)
-                data = self.client.decrypt(msg).decode()
+            msg = self.client.client.recv(4096)
+            data = self.client.decrypt(msg).decode()
 
-                users = data.split(":")
-                for user in users:
-                    Button(self, text=user, width=self.width // 100, bg="#DC143C", font=("ariel", font_size), fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.back)
-            except EXCEPTION:
-                pass
+            users = data.split(":")
+            users.pop()
+            for user in users:
+                Button(self, text=user, width=self.width // 100, bg="#00A36C", font=("ariel", font_size), fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=lambda: send_choose(user)).pack(pady=self.height//100)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
