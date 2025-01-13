@@ -12,6 +12,7 @@ class App:
         HomePage(self.root, self.client)
         self.root.mainloop()
 
+        self.client.client.send(self.client.encrypt("exit:"))
         self.client.client.close()
         sys.exit()
 

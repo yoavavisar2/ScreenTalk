@@ -92,12 +92,15 @@ class Server:
         client.public_key = load_pem_public_key(public_key_pem)
 
         signed = False
-        while self.connected:
+        connected = True
+        while self.connected and connected:
             try:
                 msg = client.conn.recv(1024)
                 msg = client.decrypt(msg).decode()
                 header, data = msg.split(":")
 
+                if header == "exit":
+                    connected = True
                 if not signed:
                     if header == "signup":
                         signed = self.handel_signup(data, client)
@@ -114,11 +117,13 @@ class Server:
                     if header == "choose":
                         print(data)
             except Exception:
-                self.connected = False
+                connected = False
 
         print(f"[DISCONNECT]")
         try:
             self.clients.remove(client.conn)
+            self.allow_list.remove(client)
+            self.control_list.remove(client)
             client.conn.close()
         except Exception:
             pass
@@ -182,7 +187,10 @@ class Server:
             for client in self.allow_list:
                 text += client.username + ":"
             for client in self.control_list:
-                client.conn.send(client.encrypt(text))
+                try:
+                    client.conn.send(client.encrypt(text))
+                except:
+                    pass
 
     def start(self):
         threading.Thread(target=self.broadcast_allow_to_control).start()
@@ -191,7 +199,7 @@ class Server:
             conn, addr = self.server.accept()
             client_thread = threading.Thread(target=self.handle_client, args=(Client(addr, conn),))
             client_thread.start()
-            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 2}")
 
 
 if __name__ == '__main__':
