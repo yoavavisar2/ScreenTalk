@@ -1,5 +1,7 @@
 import socket
 import threading
+import time
+
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -104,7 +106,6 @@ class Server:
                 if not signed:
                     if header == "signup":
                         signed = self.handel_signup(data, client)
-
                     elif header == "login":
                         signed = self.handel_login(data, client)
                 else:

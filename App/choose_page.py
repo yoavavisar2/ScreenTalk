@@ -13,41 +13,39 @@ class ChoosePage(Frame):
         self.pack(fill="both", expand=True)
         self.width = width
         self.height = height
+        self.choose = False
 
         Label(self, text=f"welcome {self.client.username}", font=("ariel", pixels2points(self.width/20)),
               bg="#031E49", fg="white").pack(pady=self.height // 20)
 
         self.buttons()
 
-    def control(self):
-        def send_choose(username):
-            try:
-                txt = "choose:" + username
-                message = self.client.encrypt(txt)
-                self.client.client.send(message)
-                self.choose = True
-            except Exception as e:
-                print(e)
+    def send_choose(self, username):
+        txt = "choose:" + username
+        message = self.client.encrypt(txt)
+        self.client.client.send(message)
+        self.choose = True
 
+    def control(self):
         encrypted_msg = self.client.encrypt("control:")
         self.client.client.send(encrypted_msg)
 
         for widget in self.winfo_children():
             widget.destroy()
-
         text = "choose user to control"
         Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
         font_size = pixels2points(self.width // 50)
-        self.choose = False
         while not self.choose:
-            msg = self.client.client.recv(4096)
+            msg = self.client.client.recv(256)
             data = self.client.decrypt(msg).decode()
 
             users = data.split(":")
             users.pop()
             for user in users:
-                Button(self, text=user, width=self.width // 100, bg="#00A36C", font=("ariel", font_size), fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=lambda: send_choose(user)).pack(pady=self.height//100)
+                print(user)
+                Button(self, text=user, width=self.width // 100, bg="#00A36C", font=("ariel", font_size), fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=lambda: self.send_choose(user)).pack(pady=self.height//100)
         print(123)
+        # TODO: control button
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
