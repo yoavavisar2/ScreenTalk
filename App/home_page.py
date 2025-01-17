@@ -14,7 +14,13 @@ class HomePage:
         self.client = client
         self.root.title("Screen Talk")
         self.root.state('zoomed')
-        self.root.overrideredirect(True)
+        self.root.attributes('-fullscreen', True)
+
+        # Ensure the window appears in the taskbar
+        self.root.iconify()
+        self.root.update_idletasks()
+        self.root.deiconify()
+
         self.root.resizable(False, False)
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()

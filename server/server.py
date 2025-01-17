@@ -1,7 +1,5 @@
 import socket
 import threading
-import time
-
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -115,9 +113,11 @@ class Server:
                         self.allow_list.remove(client)
                     if header == "control":
                         username = data
-                        for client in self.allow_list:
-                            if client.username == username:
+                        for allow_client in self.allow_list:
+                            if allow_client.username == username:
                                 # TODO: Send to other user
+                                msg = allow_client.encrypt(client.username)
+                                allow_client.conn.send(msg)
             except Exception:
                 connected = False
 

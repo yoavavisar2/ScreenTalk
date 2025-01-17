@@ -1,5 +1,6 @@
 from tkinter import *
 from client import Client
+import threading
 
 
 def pixels2points(pixels):
@@ -30,11 +31,9 @@ class ChoosePage(Frame):
     def control(self):
         for widget in self.winfo_children():
             widget.destroy()
-        text = "choose user to control"
-        Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
 
         Label(self, text="Enter username to connect", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack()
-        username_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=self.width // 100,
+        username_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=int(self.width // 100),
                                bg="lightgray", textvariable=self.usernameVar)
         username_entry.pack(pady=(0, self.height // 10))
         enter_button = Button(
@@ -48,6 +47,11 @@ class ChoosePage(Frame):
         data = self.client.encrypt(msg)
         self.client.client.send(data)
 
+    def handle_recv(self):
+        data = self.client.client.recv(1024)
+        msg = self.client.decrypt(data).decode()
+        print(msg)
+
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
         self.client.client.send(encrypted_msg)
@@ -56,12 +60,18 @@ class ChoosePage(Frame):
             widget.destroy()
 
         text = "waiting for connection..."
-        Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
+        Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(
+            pady=self.height // 10)
 
         font_size = pixels2points(self.width // 50)
-        back = Button(self, text="BACK", width=self.width // 100, bg="#DC143C", font=("ariel", font_size), fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.back)
-        back.pack(pady=self.height//10)
-        # TODO: receive requests
+        back = Button(self, text="BACK", width=self.width // 100, bg="#DC143C", font=("ariel", font_size), fg="white",
+                      activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.back)
+        back.pack(pady=self.height // 10)
+
+        # Start the recv operation in a separate thread
+        recv_thread = threading.Thread(target=self.handle_recv)
+        recv_thread.daemon = True
+        recv_thread.start()
 
     def back(self):
         encrypted_msg = self.client.encrypt("ExitAllow:")
