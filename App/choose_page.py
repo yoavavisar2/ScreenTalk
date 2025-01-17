@@ -32,7 +32,7 @@ class ChoosePage(Frame):
         for widget in self.winfo_children():
             widget.destroy()
 
-        Label(self, text="Enter username to connect", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack()
+        Label(self, text="Enter username to connect", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack(pady=self.height//10)
         username_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=int(self.width // 100),
                                bg="lightgray", textvariable=self.usernameVar)
         username_entry.pack(pady=(0, self.height // 10))
@@ -50,7 +50,12 @@ class ChoosePage(Frame):
     def handle_recv(self):
         data = self.client.client.recv(1024)
         msg = self.client.decrypt(data).decode()
-        print(msg)
+
+        canvas = Canvas(self, bd=0, highlightthickness=0, bg='#A9A9A9', width=self.width//2)
+        canvas.place(relwidth=0.5, relheight=0.5, relx=0.5, rely=0.5, anchor="center")
+        # Ensure the canvas is on top of other widgets
+        canvas.tkraise()
+        # TODO: req msg
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
