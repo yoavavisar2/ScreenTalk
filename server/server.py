@@ -114,9 +114,10 @@ class Server:
                     if header == "ExitAllow":
                         self.allow_list.remove(client)
                     if header == "control":
-                        self.control_list.append(client)
-                    if header == "choose":
-                        print(data)
+                        username = data
+                        for client in self.allow_list:
+                            if client.username == username:
+                                # TODO: Send to other user
             except Exception:
                 connected = False
 
@@ -182,25 +183,13 @@ class Server:
             client.conn.send(client.encrypt("login_failed"))
             return False
 
-    def broadcast_allow_to_control(self):
-        while self.connected:
-            text = ""
-            for client in self.allow_list:
-                text += client.username + ":"
-            for client in self.control_list:
-                try:
-                    client.conn.send(client.encrypt(text))
-                except:
-                    pass
-
     def start(self):
-        threading.Thread(target=self.broadcast_allow_to_control).start()
         print("[LISTENING]")
         while True:
             conn, addr = self.server.accept()
             client_thread = threading.Thread(target=self.handle_client, args=(Client(addr, conn),))
             client_thread.start()
-            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 2}")
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
 if __name__ == '__main__':

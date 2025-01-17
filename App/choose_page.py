@@ -14,6 +14,7 @@ class ChoosePage(Frame):
         self.width = width
         self.height = height
         self.choose = False
+        self.usernameVar = StringVar(self)
 
         Label(self, text=f"welcome {self.client.username}", font=("ariel", pixels2points(self.width/20)),
               bg="#031E49", fg="white").pack(pady=self.height // 20)
@@ -27,25 +28,25 @@ class ChoosePage(Frame):
         self.choose = True
 
     def control(self):
-        encrypted_msg = self.client.encrypt("control:")
-        self.client.client.send(encrypted_msg)
-
         for widget in self.winfo_children():
             widget.destroy()
         text = "choose user to control"
         Label(self, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#031E49", fg="white").pack(pady=self.height//10)
-        font_size = pixels2points(self.width // 50)
-        while not self.choose:
-            msg = self.client.client.recv(256)
-            data = self.client.decrypt(msg).decode()
 
-            users = data.split(":")
-            users.pop()
-            for user in users:
-                print(user)
-                Button(self, text=user, width=self.width // 100, bg="#00A36C", font=("ariel", font_size), fg="white", activebackground="#00A36C", activeforeground="white", bd=0, relief=SUNKEN, command=lambda: self.send_choose(user)).pack(pady=self.height//100)
-        print(123)
-        # TODO: control button
+        Label(self, text="Enter username to connect", font=("ariel", pixels2points(self.width / 25)), bg="#031E49", fg="white").pack()
+        username_entry = Entry(self, font=("ariel", pixels2points(self.width / 50)), width=self.width // 100,
+                               bg="lightgray", textvariable=self.usernameVar)
+        username_entry.pack(pady=(0, self.height // 10))
+        enter_button = Button(
+            self, text="ENTER", width=self.width // 150, bg="#1EB500", font=("ariel", pixels2points(self.width / 40)),
+            fg="white", activebackground="#1EB500", activeforeground="white", bd=0, relief=SUNKEN, command=self.submit
+        )
+        enter_button.pack()
+
+    def submit(self):
+        msg = "control:" + self.usernameVar.get()
+        data = self.client.encrypt(msg)
+        self.client.client.send(data)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
