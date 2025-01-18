@@ -115,9 +115,9 @@ class Server:
                         username = data
                         for allow_client in self.allow_list:
                             if allow_client.username == username:
-                                # TODO: Send to other user
                                 msg = allow_client.encrypt(client.username)
                                 allow_client.conn.send(msg)
+                                # TODO: wait for answer?
             except Exception:
                 connected = False
 

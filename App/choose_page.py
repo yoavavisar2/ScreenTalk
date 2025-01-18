@@ -17,7 +17,13 @@ class ChoosePage(Frame):
         self.choose = False
         self.usernameVar = StringVar(self)
 
-        Label(self, text=f"welcome {self.client.username}", font=("ariel", pixels2points(self.width/20)),
+        self.page()
+
+    def page(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        Label(self, text=f"welcome {self.client.username}", font=("ariel", pixels2points(self.width / 20)),
               bg="#031E49", fg="white").pack(pady=self.height // 20)
 
         self.buttons()
@@ -42,6 +48,10 @@ class ChoosePage(Frame):
         )
         enter_button.pack()
 
+        back = Button(self, text="BACK", width=self.width // 100, bg="#DC143C", font=("ariel", pixels2points(self.width // 50)), fg="white",
+                      activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.page)
+        back.pack(pady=self.height // 10)
+
     def submit(self):
         msg = "control:" + self.usernameVar.get()
         data = self.client.encrypt(msg)
@@ -52,10 +62,12 @@ class ChoosePage(Frame):
         msg = self.client.decrypt(data).decode()
 
         canvas = Canvas(self, bd=0, highlightthickness=0, bg='#A9A9A9', width=self.width//2)
-        canvas.place(relwidth=0.5, relheight=0.5, relx=0.5, rely=0.5, anchor="center")
-        # Ensure the canvas is on top of other widgets
-        canvas.tkraise()
-        # TODO: req msg
+        canvas.place(relwidth=0.75, relheight=0.8, relx=0.5, rely=0.5, anchor="center")
+        text = "new request from: " + msg
+        Label(canvas, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#A9A9A9", fg="white").pack()
+        canvas.tag_raise('canvas')
+
+        # TODO: buttons
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
