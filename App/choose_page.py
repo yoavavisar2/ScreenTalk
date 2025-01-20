@@ -1,6 +1,7 @@
 from tkinter import *
 from client import Client
 import threading
+from functools import partial
 
 
 def pixels2points(pixels):
@@ -62,7 +63,7 @@ class ChoosePage(Frame):
         if decrypted == "good":
             pass
             # TODO: keep connection, get if accepted
-            msg = self.client
+            msg = self.client.client.recv(1024)
 
         elif decrypted == "bad":
             self.usernameVar.set("")
@@ -85,20 +86,20 @@ class ChoosePage(Frame):
 
         accept = Button(button_frame, text="ACCEPT", width=self.width // 100, bg="#32CD32", font=("ariel", font_size),
                         fg="white", activebackground="#32CD32", activeforeground="white",
-                        bd=0, relief=SUNKEN, command=self.accept)
+                        bd=0, relief=SUNKEN, command=partial(self.accept, msg))
         accept.pack(side=LEFT, padx=(0, self.width // 5))
 
         deny = Button(button_frame, text="DENY", width=self.width // 100, bg="#DC143C", font=("ariel", font_size),
-                      fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.deny)
+                      fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=partial(self.deny, msg))
         deny.pack(side=LEFT)
 
-    def deny(self):
-        msg = self.client.encrypt("choose:deny")
+    def deny(self, username):
+        msg = self.client.encrypt("choose:deny," + username)
         self.client.client.send(msg)
         self.allow()
 
-    def accept(self):
-        msg = self.client.encrypt("choose:accept")
+    def accept(self, username):
+        msg = self.client.encrypt("choose:accept," + username)
         self.client.client.send(msg)
 
     def allow(self):

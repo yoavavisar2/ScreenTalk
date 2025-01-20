@@ -126,7 +126,11 @@ class Server:
                         encrypted = client.encrypt(response)
                         client.conn.send(encrypted)
                     if header == "choose":
-                        print(data)
+                        action, username = data.split(',')
+                        other_client = self.get_user_by_username(username)
+                        if action == "accept":
+                            pass # TODO: send to other user
+
             except Exception:
                 connected = False
 
@@ -141,9 +145,9 @@ class Server:
 
     def get_user_by_username(self, username):
         for client in self.clients:
-            pass
-        # TODO
-
+            if client.username == username:
+                return client
+        return None
 
     @staticmethod
     def handel_signup(data, client):
