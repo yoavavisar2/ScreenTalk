@@ -113,11 +113,20 @@ class Server:
                         self.allow_list.remove(client)
                     if header == "control":
                         username = data
+                        names = []
+                        response = "bad"
                         for allow_client in self.allow_list:
-                            if allow_client.username == username:
-                                msg = allow_client.encrypt(client.username)
-                                allow_client.conn.send(msg)
-                                # TODO: wait for answer?
+                            names.append(allow_client.username)
+                        if username in names:
+                            for allow_client in self.allow_list:
+                                if allow_client.username == username:
+                                    msg = allow_client.encrypt(client.username)
+                                    allow_client.conn.send(msg)
+                                    response = "good"
+                        encrypted = client.encrypt(response)
+                        client.conn.send(encrypted)
+                    if header == "choose":
+                        print(data)
             except Exception:
                 connected = False
 
@@ -129,6 +138,12 @@ class Server:
             client.conn.close()
         except Exception:
             pass
+
+    def get_user_by_username(self, username):
+        for client in self.clients:
+            pass
+        # TODO
+
 
     @staticmethod
     def handel_signup(data, client):

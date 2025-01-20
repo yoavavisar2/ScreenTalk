@@ -57,6 +57,18 @@ class ChoosePage(Frame):
         data = self.client.encrypt(msg)
         self.client.client.send(data)
 
+        rcv = self.client.client.recv(1024)
+        decrypted = self.client.decrypt(rcv).decode()
+        if decrypted == "good":
+            pass
+            # TODO: keep connection, get if accepted
+            msg = self.client
+
+        elif decrypted == "bad":
+            self.usernameVar.set("")
+            Label(self, text="wrong username", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                  fg="red").pack()
+
     def handle_recv(self):
         data = self.client.client.recv(1024)
         msg = self.client.decrypt(data).decode()
@@ -64,10 +76,30 @@ class ChoosePage(Frame):
         canvas = Canvas(self, bd=0, highlightthickness=0, bg='#A9A9A9', width=self.width//2)
         canvas.place(relwidth=0.75, relheight=0.8, relx=0.5, rely=0.5, anchor="center")
         text = "new request from: " + msg
-        Label(canvas, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#A9A9A9", fg="white").pack()
+        Label(canvas, text=text, font=("ariel", pixels2points(self.width / 20)), bg="#A9A9A9", fg="white").pack(pady=self.height//10)
         canvas.tag_raise('canvas')
 
-        # TODO: buttons
+        button_frame = Frame(canvas, bg="#A9A9A9")
+        button_frame.pack(pady=(self.height // 7, 0))
+        font_size = pixels2points(self.width // 50)
+
+        accept = Button(button_frame, text="ACCEPT", width=self.width // 100, bg="#32CD32", font=("ariel", font_size),
+                        fg="white", activebackground="#32CD32", activeforeground="white",
+                        bd=0, relief=SUNKEN, command=self.accept)
+        accept.pack(side=LEFT, padx=(0, self.width // 5))
+
+        deny = Button(button_frame, text="DENY", width=self.width // 100, bg="#DC143C", font=("ariel", font_size),
+                      fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.deny)
+        deny.pack(side=LEFT)
+
+    def deny(self):
+        msg = self.client.encrypt("choose:deny")
+        self.client.client.send(msg)
+        self.allow()
+
+    def accept(self):
+        msg = self.client.encrypt("choose:accept")
+        self.client.client.send(msg)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
