@@ -60,7 +60,7 @@ class HomePage:
         self.current_frame = Frame(self.root, bg="#031E49")
         self.current_frame.pack(fill="both", expand=True)
 
-        img = Image.open("car.png")
+        img = Image.open("logo.png")
 
         new_height = self.height//3
         aspect_ratio = img.width / img.height
