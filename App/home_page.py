@@ -2,6 +2,7 @@ from tkinter import *
 from login_page import LoginPage
 from signup_page import SignUpPage
 from client import Client
+from PIL import Image, ImageTk
 
 
 def pixels2points(pixels):
@@ -43,7 +44,7 @@ class HomePage:
 
     def login_and_signup_buttons(self):
         button_frame = Frame(self.current_frame, bg="#031E49")
-        button_frame.pack(pady=(self.height // 7, 0))
+        button_frame.pack()
         font_size = pixels2points(self.width / 40)
 
         loginB = Button(button_frame, text="LOGIN", width=self.width // 150, bg="#32CD32", font=("ariel", font_size),
@@ -59,8 +60,21 @@ class HomePage:
         self.current_frame = Frame(self.root, bg="#031E49")
         self.current_frame.pack(fill="both", expand=True)
 
-        Label(self.current_frame, text="Screen Talk", fg='white', bg="#031E49", font=('ariel', pixels2points(self.width/10))).pack(pady=self.height // 20)
+        img = Image.open("car.png")
 
+        new_height = self.height//3
+        aspect_ratio = img.width / img.height
+        new_width = int(new_height * aspect_ratio)
+
+        img = img.resize((new_width, new_height))
+
+        logoImage = ImageTk.PhotoImage(img)
+        logoLabel = Label(self.current_frame, image=logoImage, bg="#031E49")
+
+        # This next line will create a reference that stops the GC from deleting the object
+        logoLabel.image = logoImage
+
+        logoLabel.pack(pady=self.height//10)
         self.login_and_signup_buttons()
 
         Button(self.current_frame, text="EXIT", width=self.width // 150, bg="#DC143C", command=self.root.quit,
