@@ -128,12 +128,16 @@ class Server:
                     if header == "choose":
                         action, username = data.split(',')
                         other_client = self.get_user_by_username(username)
-                        if action == "accept":
-                            pass # TODO: send to other user
-
+                        if other_client:
+                            if action == "accept":
+                                text = other_client.encrypt("accept:" + client.addr[0])
+                                other_client.conn.send(text)
+                                client.conn.send(client.encrypt(other_client.addr[0]))
+                            if action == "deny":
+                                text = other_client.encrypt("deny:")
+                                other_client.conn.send(text)
             except Exception:
                 connected = False
-
         print(f"[DISCONNECT]")
         try:
             self.clients.remove(client.conn)
@@ -143,11 +147,10 @@ class Server:
         except Exception:
             pass
 
-    def get_user_by_username(self, username):
+    def get_user_by_username(self, username) -> Client:
         for client in self.clients:
             if client.username == username:
                 return client
-        return None
 
     @staticmethod
     def handel_signup(data, client):

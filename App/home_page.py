@@ -59,8 +59,7 @@ class HomePage:
         self.current_frame = Frame(self.root, bg="#031E49")
         self.current_frame.pack(fill="both", expand=True)
 
-        Label(self.current_frame, text="Screen Talk", fg='white', bg="#031E49",
-              font=('ariel', pixels2points(self.width/10))).pack(pady=self.height // 20)
+        Label(self.current_frame, text="Screen Talk", fg='white', bg="#031E49", font=('ariel', pixels2points(self.width/10))).pack(pady=self.height // 20)
 
         self.login_and_signup_buttons()
 

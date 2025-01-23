@@ -2,6 +2,8 @@ from tkinter import *
 from client import Client
 import threading
 from functools import partial
+from stream_page import StreamPage
+from share_page import SharePage
 
 
 def pixels2points(pixels):
@@ -61,9 +63,16 @@ class ChoosePage(Frame):
         rcv = self.client.client.recv(1024)
         decrypted = self.client.decrypt(rcv).decode()
         if decrypted == "good":
-            pass
-            # TODO: keep connection, get if accepted
             msg = self.client.client.recv(1024)
+            msg, ip = self.client.decrypt(msg).decode().split(':')
+            if msg == "deny":
+                self.usernameVar.set("")
+                Label(self, text="access denied", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                      fg="red").pack()
+            if msg == "accept":
+                for widget in self.winfo_children():
+                    widget.destroy()
+                StreamPage(self, self.width, self.height, self.client, ip)
 
         elif decrypted == "bad":
             self.usernameVar.set("")
@@ -101,6 +110,11 @@ class ChoosePage(Frame):
     def accept(self, username):
         msg = self.client.encrypt("choose:accept," + username)
         self.client.client.send(msg)
+        ip = self.client.client.recv(1024)
+        ip = self.client.decrypt(ip).decode()
+        for widget in self.winfo_children():
+            widget.destroy()
+        SharePage(self, self.width, self.height, self.client, ip)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
