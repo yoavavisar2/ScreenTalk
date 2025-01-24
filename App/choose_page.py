@@ -59,25 +59,31 @@ class ChoosePage(Frame):
         msg = "control:" + self.usernameVar.get()
         data = self.client.encrypt(msg)
         self.client.client.send(data)
+        try:
+            rcv = self.client.client.recv(1024)
+            decrypted = self.client.decrypt(rcv).decode()
+            if decrypted == "good":
+                msg = self.client.client.recv(1024)
+                msg, ip = self.client.decrypt(msg).decode().split(':')
+                if msg == "deny":
+                    self.usernameVar.set("")
+                    Label(self, text="access denied", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                          fg="red").pack()
+                if msg == "accept":
+                    key = self.client.client.recv(1024)
+                    key = self.client.decrypt(key)
+                    print(key)
 
-        rcv = self.client.client.recv(1024)
-        decrypted = self.client.decrypt(rcv).decode()
-        if decrypted == "good":
-            msg = self.client.client.recv(1024)
-            msg, ip = self.client.decrypt(msg).decode().split(':')
-            if msg == "deny":
+                    for widget in self.winfo_children():
+                        widget.destroy()
+                    StreamPage(self, self.width, self.height, self.client, ip, key)
+
+            elif decrypted == "bad":
                 self.usernameVar.set("")
-                Label(self, text="access denied", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
+                Label(self, text="wrong username", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
                       fg="red").pack()
-            if msg == "accept":
-                for widget in self.winfo_children():
-                    widget.destroy()
-                StreamPage(self, self.width, self.height, self.client, ip)
-
-        elif decrypted == "bad":
-            self.usernameVar.set("")
-            Label(self, text="wrong username", font=("ariel", pixels2points(self.width / 50)), bg="#031E49",
-                  fg="red").pack()
+        except:
+            print("waiting")
 
     def handle_recv(self):
         data = self.client.client.recv(1024)
