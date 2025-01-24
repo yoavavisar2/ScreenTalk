@@ -9,7 +9,7 @@ def pixels2points(pixels):
 
 
 class StreamPage(Frame):
-    def __init__(self, root, width, height, client: Client, ip):
+    def __init__(self, root, width, height, client: Client, ip, key):
         super().__init__(root, bg="#031E49")
         self.client = client
         self.pack(fill="both", expand=True)
@@ -17,6 +17,7 @@ class StreamPage(Frame):
         self.height = height
         self.other_user = ip
         self.connected = True
+        self.key = key  # TODO: enc and dec funcs
 
         if self.other_user == '127.0.0.1':
             self.ip = '127.0.0.1'
@@ -34,4 +35,3 @@ class StreamPage(Frame):
         while self.connected:
             msg = self.socket.recv(1024).decode()
             print(msg)
-
