@@ -54,8 +54,13 @@ class Client:
         return decrypted_message
 
     def encrypt(self, text):
+        try:
+            text = text.encode()
+        except:
+            pass
+
         encrypted_text = self.public_key.encrypt(
-            text.encode(),
+            text,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -130,8 +135,12 @@ class Server:
                         other_client = self.get_user_by_username(username)
                         if other_client:
                             if action == "accept":
+                                key = os.urandom(32)
+
                                 text = other_client.encrypt("accept:" + client.addr[0])
                                 other_client.conn.send(text)
+                                other_client.conn.send(other_client.encrypt(key))
+                                # TODO: send key to client
                                 client.conn.send(client.encrypt(other_client.addr[0]))
                             if action == "deny":
                                 text = other_client.encrypt("deny:")
