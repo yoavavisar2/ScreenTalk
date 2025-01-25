@@ -35,8 +35,7 @@ class StreamPage(Frame):
 
         threading.Thread(target=self.receive).start()
 
-    def encrypt_aes(self, plaintext: str):
-        plaintext = plaintext.encode()
+    def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
 
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
@@ -49,7 +48,7 @@ class StreamPage(Frame):
 
         return iv + ciphertext
 
-    def decrypt_aes(self, encrypted_data) -> str:
+    def decrypt_aes(self, encrypted_data) -> bytes:
         iv = encrypted_data[:16]
         ciphertext = encrypted_data[16:]
 
@@ -61,10 +60,11 @@ class StreamPage(Frame):
         unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
 
-        return plaintext.decode()
+        return plaintext
 
     def receive(self):
-        while self.connected:
-            msg = self.socket.recv(1024)
-            msg = self.decrypt_aes(msg)
-            print(msg)
+        img_bytes = self.socket.recv(65535)
+        img_bytes = self.decrypt_aes(img_bytes)
+
+        with open("received_image.png", "wb") as file:
+            file.write(img_bytes)

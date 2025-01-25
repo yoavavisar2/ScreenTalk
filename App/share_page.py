@@ -6,6 +6,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
+from PIL import ImageGrab
+import io
+
 
 
 def pixels2points(pixels):
@@ -26,10 +29,9 @@ class SharePage(Frame):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.connect((self.other_user, 12345))
 
-        threading.Thread(target=self.send_msg).start()
+        threading.Thread(target=self.send_img).start()
 
-    def encrypt_aes(self, plaintext: str):
-        plaintext = plaintext.encode()
+    def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
 
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
@@ -42,7 +44,7 @@ class SharePage(Frame):
 
         return iv + ciphertext
 
-    def decrypt_aes(self, encrypted_data) -> str:
+    def decrypt_aes(self, encrypted_data) -> bytes:
         iv = encrypted_data[:16]
         ciphertext = encrypted_data[16:]
 
@@ -54,11 +56,13 @@ class SharePage(Frame):
         unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
 
-        return plaintext.decode()
+        return plaintext
 
-    def send_msg(self):
-        while self.connected:
-            print("enter:")
-            msg = input()
-            msg = self.encrypt_aes(msg)
-            self.socket.send(msg)
+    def send_img(self):
+        img = ImageGrab.grab()
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        image_bytes = buffer.getvalue()
+        encrypted_bytes = self.encrypt_aes(image_bytes)
+        self.socket.send(encrypted_bytes)
+        buffer.close()
