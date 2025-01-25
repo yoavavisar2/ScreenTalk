@@ -72,7 +72,6 @@ class ChoosePage(Frame):
                 if msg == "accept":
                     key = self.client.client.recv(1024)
                     key = self.client.decrypt(key)
-                    print(key)
 
                     for widget in self.winfo_children():
                         widget.destroy()
@@ -118,9 +117,13 @@ class ChoosePage(Frame):
         self.client.client.send(msg)
         ip = self.client.client.recv(1024)
         ip = self.client.decrypt(ip).decode()
+
+        key = self.client.client.recv(1024)
+        key = self.client.decrypt(key)
+
         for widget in self.winfo_children():
             widget.destroy()
-        SharePage(self, self.width, self.height, self.client, ip)
+        SharePage(self, self.width, self.height, self.client, ip, key)
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")
