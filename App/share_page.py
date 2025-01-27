@@ -33,10 +33,7 @@ class SharePage(Frame):
 
     def share(self):
         while self.connected:
-            start_time = time.time()
             self.send_img()
-            elapsed_time = time.time() - start_time
-            time.sleep(max(0, int(1/30 - elapsed_time)))
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
@@ -66,9 +63,10 @@ class SharePage(Frame):
         return plaintext
 
     def send_img(self):
+        buffer = None
         img = ImageGrab.grab()
         buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
+        img.save(buffer, format="JPEG", quality=50)
         image_bytes = buffer.getvalue()
         encrypted_bytes = self.encrypt_aes(image_bytes)
         self.socket.send(encrypted_bytes)

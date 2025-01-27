@@ -72,6 +72,9 @@ class StreamPage(Frame):
         return plaintext
 
     def receive(self):
+        buffer = None
+        for widget in self.winfo_children():
+            widget.destroy()
         img_bytes = self.socket.recv(65535)
         img_bytes = self.decrypt_aes(img_bytes)
         buffer = io.BytesIO(img_bytes)
