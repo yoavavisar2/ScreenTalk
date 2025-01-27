@@ -225,4 +225,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    Server()
+    Server('192.168.24.209')

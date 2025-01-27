@@ -6,6 +6,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
+import io
+from PIL import Image, ImageTk
 
 
 def pixels2points(pixels):
@@ -34,6 +36,13 @@ class StreamPage(Frame):
         self.socket.bind(self.address)
 
         threading.Thread(target=self.receive).start()
+
+    def stream(self):
+        while self.connected:
+            try:
+                self.receive()
+            except:
+                print("image not work")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
@@ -65,6 +74,19 @@ class StreamPage(Frame):
     def receive(self):
         img_bytes = self.socket.recv(65535)
         img_bytes = self.decrypt_aes(img_bytes)
+        buffer = io.BytesIO(img_bytes)
 
-        with open("received_image.png", "wb") as file:
-            file.write(img_bytes)
+        img = Image.open(buffer)
+
+        new_height = int(self.height // 2)
+        new_width = int(self.width // 2)
+
+        img = img.resize((new_width, new_height))
+
+        logoImage = ImageTk.PhotoImage(img)
+        logoLabel = Label(self, image=logoImage, bg="#031E49")
+
+        # This next line will create a reference that stops the GC from deleting the object
+        logoLabel.image = logoImage
+
+        logoLabel.pack(pady=self.height // 10)

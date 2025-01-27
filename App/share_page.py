@@ -8,7 +8,7 @@ from cryptography.hazmat.backends import default_backend
 import os
 from PIL import ImageGrab
 import io
-
+import time
 
 
 def pixels2points(pixels):
@@ -17,7 +17,7 @@ def pixels2points(pixels):
 
 class SharePage(Frame):
     def __init__(self, root, width, height, client: Client, ip, key):
-        super().__init__(root, bg="#031E49")
+        super().__init__(root, bg="#000000")
         self.client = client
         self.pack(fill="both", expand=True)
         self.width = width
@@ -29,7 +29,14 @@ class SharePage(Frame):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.connect((self.other_user, 12345))
 
-        threading.Thread(target=self.send_img).start()
+        threading.Thread(target=self.share).start()
+
+    def share(self):
+        while self.connected:
+            start_time = time.time()
+            self.send_img()
+            elapsed_time = time.time() - start_time
+            time.sleep(max(0, int(1/30 - elapsed_time)))
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
