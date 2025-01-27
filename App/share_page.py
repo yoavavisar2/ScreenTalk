@@ -7,8 +7,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
 from PIL import ImageGrab
-import io
-import time
+from io import BytesIO
 
 
 def pixels2points(pixels):
@@ -27,13 +26,27 @@ class SharePage(Frame):
         self.key = key
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect((self.other_user, 12345))
 
         threading.Thread(target=self.share).start()
 
     def share(self):
-        while self.connected:
-            self.send_img()
+        try:
+            while True:
+                # Capture the screen
+                screenshot = ImageGrab.grab()
+
+                # Resize for better performance (optional)
+                screenshot = screenshot.resize((800, 600))
+
+                # Convert image to bytes
+                bio = BytesIO()
+                screenshot.save(bio, format="JPEG", quality=50)
+                image_bytes = bio.getvalue()
+
+                # Send image data over UDP
+                self.socket.sendto(self.encrypt_aes(image_bytes), (self.other_user, 12345))
+        except Exception as e:
+            print(f"Error capturing or sending screen: {e}")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
@@ -61,13 +74,3 @@ class SharePage(Frame):
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
 
         return plaintext
-
-    def send_img(self):
-        buffer = None
-        img = ImageGrab.grab()
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=50)
-        image_bytes = buffer.getvalue()
-        encrypted_bytes = self.encrypt_aes(image_bytes)
-        self.socket.send(encrypted_bytes)
-        buffer.close()

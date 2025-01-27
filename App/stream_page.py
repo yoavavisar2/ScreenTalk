@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
-import io
+from io import BytesIO
 from PIL import Image, ImageTk
 
 
@@ -35,14 +35,26 @@ class StreamPage(Frame):
         self.address = (self.ip, 12345)
         self.socket.bind(self.address)
 
-        threading.Thread(target=self.receive).start()
+        threading.Thread(target=self.stream).start()
 
     def stream(self):
-        while self.connected:
-            try:
-                self.receive()
-            except:
-                print("image not work")
+        canvas = Canvas(self, width=800, height=600)
+        canvas.pack()
+        try:
+            while True:
+                # Receive image data over UDP
+                data, addr = self.socket.recvfrom(1024 * 1024)
+                data = self.decrypt_aes(data)
+
+                # Convert bytes to image
+                image = Image.open(BytesIO(data))
+                photo = ImageTk.PhotoImage(image)
+
+                # Display image on canvas
+                canvas.create_image(0, 0, anchor=NW, image=photo)
+                canvas.image = photo  # Prevent garbage collection
+        except Exception as e:
+            print(f"Error receiving or displaying screen: {e}")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
@@ -70,26 +82,3 @@ class StreamPage(Frame):
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
 
         return plaintext
-
-    def receive(self):
-        buffer = None
-        for widget in self.winfo_children():
-            widget.destroy()
-        img_bytes = self.socket.recv(65535)
-        img_bytes = self.decrypt_aes(img_bytes)
-        buffer = io.BytesIO(img_bytes)
-
-        img = Image.open(buffer)
-
-        new_height = int(self.height // 2)
-        new_width = int(self.width // 2)
-
-        img = img.resize((new_width, new_height))
-
-        logoImage = ImageTk.PhotoImage(img)
-        logoLabel = Label(self, image=logoImage, bg="#031E49")
-
-        # This next line will create a reference that stops the GC from deleting the object
-        logoLabel.image = logoImage
-
-        logoLabel.pack(pady=self.height // 10)
