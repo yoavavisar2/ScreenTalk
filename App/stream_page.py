@@ -38,7 +38,7 @@ class StreamPage(Frame):
         threading.Thread(target=self.stream).start()
 
     def stream(self):
-        canvas = Canvas(self, width=800, height=600)
+        canvas = Canvas(self, width=self.width, height=self.height)
         canvas.pack()
         try:
             while True:
@@ -48,6 +48,7 @@ class StreamPage(Frame):
 
                 # Convert bytes to image
                 image = Image.open(BytesIO(data))
+                image = image.resize((int(self.width), int(self.height)))
                 photo = ImageTk.PhotoImage(image)
 
                 # Display image on canvas

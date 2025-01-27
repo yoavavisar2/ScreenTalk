@@ -36,11 +36,11 @@ class SharePage(Frame):
                 screenshot = ImageGrab.grab()
 
                 # Resize for better performance (optional)
-                screenshot = screenshot.resize((800, 600))
+                screenshot = screenshot.resize((1000, 750))
 
                 # Convert image to bytes
                 bio = BytesIO()
-                screenshot.save(bio, format="JPEG", quality=50)
+                screenshot.save(bio, format="JPEG", quality=75)
                 image_bytes = bio.getvalue()
 
                 # Send image data over UDP
