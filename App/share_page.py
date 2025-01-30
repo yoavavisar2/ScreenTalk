@@ -28,6 +28,10 @@ class SharePage(Frame):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         threading.Thread(target=self.share).start()
+        threading.Thread(target=self.recieve_keyboard_mouse).start()
+
+    def recieve_keyboard_mouse(self):
+        pass
 
     def share(self):
         try:

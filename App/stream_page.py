@@ -8,6 +8,7 @@ from cryptography.hazmat.backends import default_backend
 import os
 from io import BytesIO
 from PIL import Image, ImageTk
+from pynput import keyboard
 
 
 def pixels2points(pixels):
@@ -36,6 +37,25 @@ class StreamPage(Frame):
         self.socket.bind(self.address)
 
         threading.Thread(target=self.stream).start()
+        threading.Thread(target=self.send_keyboard).start()
+
+    def send_keyboard(self):
+        with keyboard.Listener(on_press=self.on_press) as listener:
+            while self.connected:
+                if not self.connected:
+                    listener.stop()
+                    break
+                listener.join(1)
+
+    def on_press(self, key_pressed):
+        try:
+            key = str(key_pressed.char)
+            data = "keyboard:" + key
+            data = self.encrypt_aes(data)
+            # TODO: send keyboard
+        except AttributeError:
+            key = str(key_pressed)
+            keyboard_client.send(key.encode())
 
     def stream(self):
         canvas = Canvas(self, width=self.width, height=self.height)
