@@ -4,10 +4,7 @@ import threading
 from functools import partial
 from stream_page import StreamPage
 from share_page import SharePage
-
-
-def pixels2points(pixels):
-    return int(0.75 * pixels)
+from utils import pixels2points
 
 
 class ChoosePage(Frame):

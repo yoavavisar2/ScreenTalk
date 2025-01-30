@@ -1,10 +1,7 @@
 from tkinter import *
 from client import Client
 from choose_page import ChoosePage
-
-
-def pixels2points(pixels):
-    return int(0.75 * pixels)
+from utils import pixels2points
 
 
 class LoginPage(Frame):

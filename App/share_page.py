@@ -10,10 +10,6 @@ from PIL import ImageGrab
 from io import BytesIO
 
 
-def pixels2points(pixels):
-    return int(0.75 * pixels)
-
-
 class SharePage(Frame):
     def __init__(self, root, width, height, client: Client, ip, key):
         super().__init__(root, bg="#000000")

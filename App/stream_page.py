@@ -11,10 +11,6 @@ from PIL import Image, ImageTk
 from pynput import keyboard
 
 
-def pixels2points(pixels):
-    return int(0.75 * pixels)
-
-
 class StreamPage(Frame):
     def __init__(self, root, width, height, client: Client, ip, key):
         super().__init__(root, bg="#031E49")
