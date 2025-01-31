@@ -21,13 +21,26 @@ class SharePage(Frame):
         self.connected = True
         self.key = key
 
+        if self.other_user == '127.0.0.1':
+            self.ip = '127.0.0.1'
+        else:
+            hostname = socket.gethostname()
+            self.ip = socket.gethostbyname(hostname)
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.address = (self.ip, 12346)
+        self.socket.bind(self.address)
 
         threading.Thread(target=self.share).start()
-        threading.Thread(target=self.recieve_keyboard_mouse).start()
+        threading.Thread(target=self.receive_keyboard_mouse).start()
 
-    def recieve_keyboard_mouse(self):
-        pass
+    def receive_keyboard_mouse(self):
+        while self.connected:
+            data, addr = self.socket.recvfrom(1024 * 1024)
+            data = self.decrypt_aes(data).decode()
+            header, key = data.split(":")
+            if header == "keyboard":
+                print(key)
 
     def share(self):
         try:

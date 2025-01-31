@@ -46,12 +46,11 @@ class StreamPage(Frame):
     def on_press(self, key_pressed):
         try:
             key = str(key_pressed.char)
-            data = "keyboard:" + key
-            data = self.encrypt_aes(data)
-            # TODO: send keyboard
         except AttributeError:
             key = str(key_pressed)
-            keyboard_client.send(key.encode())
+        data = "keyboard:" + key
+        data = self.encrypt_aes(data.encode())
+        self.socket.sendto(data, (self.other_user, 12346))
 
     def stream(self):
         canvas = Canvas(self, width=self.width, height=self.height)
