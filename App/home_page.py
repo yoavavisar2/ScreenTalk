@@ -24,7 +24,6 @@ class HomePage:
         self.height = self.root.winfo_screenheight()
 
         self.current_frame = None
-
         self.show_home_screen()
 
     def clear_frame(self):

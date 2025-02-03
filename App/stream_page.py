@@ -9,6 +9,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageTk
 from pynput import keyboard
+from pynput import mouse
 
 
 class StreamPage(Frame):
@@ -20,7 +21,8 @@ class StreamPage(Frame):
         self.height = height
         self.other_user = ip
         self.connected = True
-        self.key = key  # TODO: enc and dec funcs
+        self.key = key
+        self.events = []
 
         if self.other_user == '127.0.0.1':
             self.ip = '127.0.0.1'
@@ -34,6 +36,20 @@ class StreamPage(Frame):
 
         threading.Thread(target=self.stream).start()
         threading.Thread(target=self.send_keyboard).start()
+
+    def on_click(self, x, y, button, pressed):
+        event = f"click,{x},{y},{button},{pressed}\n"
+        self.events.append(event)
+
+    def on_scroll(self, x, y, dx, dy):
+        event = f"scroll,{x},{y},{dx},{dy}\n"
+        self.events.append(event)
+
+    def send_mouse(self):
+        listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
+        listener.start()
+        while self.connected:
+            pass
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
