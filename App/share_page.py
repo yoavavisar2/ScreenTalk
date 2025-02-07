@@ -54,14 +54,14 @@ class SharePage(Frame):
                 y = float(y) * self.height
                 mouse.position = (x, y)
             if header == "click":
-                x, y, button, pressed = data.split(',')
+                button, pressed = data.split(',')
                 btn = mouseButton.left if button == 'Button.left' else mouseButton.right
                 if pressed == 'True':
                     mouse.press(btn)
                 else:
                     mouse.release(btn)
             if header == "scroll":
-                x, y, dx, dy = data.split(',')
+                dx, dy = data.split(',')
                 mouse.scroll(int(dx), int(dy))
 
     def receive_keyboard(self):
