@@ -47,24 +47,28 @@ class StreamPage(Frame):
 
         self.x, self.y = event.x / width, event.y / height
 
-        data = "move:" + str(self.x) + "/" + str(self.y)
-        print(event.x)
-        data = self.encrypt_aes(data.encode())
-        self.socket.sendto(data, (self.other_user, 12346))
-
     def on_click(self, x, y, button, pressed):
-        event = f"click,{x},{y},{button},{pressed}\n"
+        event = f"click:{self.x},{self.y},{button},{pressed}\n"
         self.events.append(event)
 
     def on_scroll(self, x, y, dx, dy):
-        event = f"scroll,{x},{y},{dx},{dy}\n"
+        event = f"scroll:{self.x},{self.y},{dx},{dy}\n"
         self.events.append(event)
 
     def send_mouse(self):
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
         while self.connected:
-            pass
+            try:
+                data = "move:" + str(self.x) + "/" + str(self.y)
+                data = self.encrypt_aes(data.encode())
+                self.socket.sendto(data, (self.other_user, 12346))
+                while self.events:
+                    event = self.events.pop(0)
+                    event = self.encrypt_aes(event.encode())
+                    self.socket.sendto(event, (self.other_user, 12346))
+            except socket.error:
+                self.connected = False
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:

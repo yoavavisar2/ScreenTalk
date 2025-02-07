@@ -9,7 +9,7 @@ import os
 from PIL import ImageGrab
 from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
-from pynput.mouse import Button, Controller as mouseController
+from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
 
 
@@ -53,8 +53,17 @@ class SharePage(Frame):
                 x, y = data.split('/')
                 x = float(x) * self.width
                 y = float(y) * self.height
-
                 mouse.position = (x, y)
+            if header == "click":
+                x, y, button, pressed = data.split(',')
+                btn = mouseButton.left if button == 'Button.left' else mouseButton.right
+                if pressed == 'True':
+                    mouse.press(btn)
+                else:
+                    mouse.release(btn)
+            if header == "scroll":
+                x, y, dx, dy = data.split(',')
+                mouse.scroll(dx, dy)
 
     def share(self):
         try:
