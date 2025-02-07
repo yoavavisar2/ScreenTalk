@@ -1,6 +1,6 @@
 from tkinter import *
 from client import Client
-import socket
+import socket as s
 import threading
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
@@ -27,28 +27,27 @@ class SharePage(Frame):
         if self.other_user == '127.0.0.1':
             self.ip = '127.0.0.1'
         else:
-            hostname = socket.gethostname()
-            self.ip = socket.gethostbyname(hostname)
+            hostname = s.gethostname()
+            self.ip = s.gethostbyname(hostname)
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         self.address = (self.ip, 12346)
         self.socket.bind(self.address)
 
         threading.Thread(target=self.share).start()
-        threading.Thread(target=self.receive_keyboard_mouse).start()
+        threading.Thread(target=self.receive_keyboard).start()
+        threading.Thread(target=self.receive_mouse).start()
 
-    def receive_keyboard_mouse(self):
-        keyboard = keyboardController()
+    def receive_mouse(self):
+        socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+        address = (self.ip, 12347)
+        socket.bind(address)
+
         mouse = mouseController()
         while self.connected:
-            data, addr = self.socket.recvfrom(1024 * 1024)
+            data, addr = socket.recvfrom(1024 * 1024)
             data = self.decrypt_aes(data).decode()
             header, data = data.split(":")
-            if header == "keyboard":
-                try:
-                    keyboard.press(data)
-                except:
-                    keyboard.press(key_mapping[data])
             if header == "move":
                 x, y = data.split('/')
                 x = float(x) * self.width
@@ -64,6 +63,18 @@ class SharePage(Frame):
             if header == "scroll":
                 x, y, dx, dy = data.split(',')
                 mouse.scroll(int(dx), int(dy))
+
+    def receive_keyboard(self):
+        keyboard = keyboardController()
+        while self.connected:
+            data, addr = self.socket.recvfrom(1024 * 1024)
+            data = self.decrypt_aes(data).decode()
+            header, data = data.split(":")
+            if header == "keyboard":
+                try:
+                    keyboard.press(data)
+                except:
+                    keyboard.press(key_mapping[data])
 
     def share(self):
         try:
