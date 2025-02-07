@@ -40,6 +40,7 @@ class StreamPage(Frame):
 
         threading.Thread(target=self.stream).start()
         threading.Thread(target=self.send_keyboard).start()
+        threading.Thread(target=self.send_mouse).start()
 
     def get_mouse_position(self, event):
         width = self.width * 0.75
@@ -63,7 +64,7 @@ class StreamPage(Frame):
                 data = "move:" + str(self.x) + "/" + str(self.y)
                 data = self.encrypt_aes(data.encode())
                 self.socket.sendto(data, (self.other_user, 12346))
-                while self.events:
+                for event in self.events:
                     event = self.events.pop(0)
                     event = self.encrypt_aes(event.encode())
                     self.socket.sendto(event, (self.other_user, 12346))

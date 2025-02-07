@@ -63,7 +63,7 @@ class SharePage(Frame):
                     mouse.release(btn)
             if header == "scroll":
                 x, y, dx, dy = data.split(',')
-                mouse.scroll(dx, dy)
+                mouse.scroll(int(dx), int(dy))
 
     def share(self):
         try:
