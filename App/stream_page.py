@@ -22,6 +22,10 @@ class StreamPage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
+
+        self.x = 0
+        self.y = 0
+
         self.events = []
 
         if self.other_user == '127.0.0.1':
@@ -36,6 +40,16 @@ class StreamPage(Frame):
 
         threading.Thread(target=self.stream).start()
         threading.Thread(target=self.send_keyboard).start()
+
+    def get_mouse_position(self, event):
+        width = self.width * 0.75
+        height = self.height * 0.75
+
+        self.x, self.y = event.x // width, event.y // height
+
+        data = "move:" + str(self.x) + "/" + str(self.y)
+        data = self.encrypt_aes(data.encode())
+        self.socket.sendto(data, (self.other_user, 12346))
 
     def on_click(self, x, y, button, pressed):
         event = f"click,{x},{y},{button},{pressed}\n"
@@ -69,8 +83,9 @@ class StreamPage(Frame):
         self.socket.sendto(data, (self.other_user, 12346))
 
     def stream(self):
-        canvas = Canvas(self, width=self.width, height=self.height)
+        canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
         canvas.pack()
+        canvas.bind("<Motion>", self.get_mouse_position)
         try:
             while True:
                 # Receive image data over UDP
@@ -79,7 +94,7 @@ class StreamPage(Frame):
 
                 # Convert bytes to image
                 image = Image.open(BytesIO(data))
-                image = image.resize((int(self.width), int(self.height)))
+                image = image.resize((int(self.width * 0.75), int(self.height * 0.75)))
                 photo = ImageTk.PhotoImage(image)
 
                 # Display image on canvas

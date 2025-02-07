@@ -8,7 +8,8 @@ from cryptography.hazmat.backends import default_backend
 import os
 from PIL import ImageGrab
 from io import BytesIO
-from pynput.keyboard import Controller
+from pynput.keyboard import Controller as keyboardController
+from pynput.mouse import Button, Controller as mouseController
 from keys import key_mapping
 
 
@@ -37,16 +38,23 @@ class SharePage(Frame):
         threading.Thread(target=self.receive_keyboard_mouse).start()
 
     def receive_keyboard_mouse(self):
-        keyboard = Controller()
+        keyboard = keyboardController()
+        mouse = mouseController()
         while self.connected:
             data, addr = self.socket.recvfrom(1024 * 1024)
             data = self.decrypt_aes(data).decode()
-            header, key = data.split(":")
+            header, data = data.split(":")
             if header == "keyboard":
                 try:
-                    keyboard.press(key)
+                    keyboard.press(data)
                 except:
-                    keyboard.press(key_mapping[key])
+                    keyboard.press(key_mapping[data])
+            if header == "move":
+                x, y = data.split('/')
+                x = int(x) * self.width
+                y = int(y) * self.height
+
+                mouse.position = (x, y)
 
     def share(self):
         try:
