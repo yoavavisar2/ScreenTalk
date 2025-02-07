@@ -51,8 +51,8 @@ class SharePage(Frame):
                     keyboard.press(key_mapping[data])
             if header == "move":
                 x, y = data.split('/')
-                x = int(x) * self.width
-                y = int(y) * self.height
+                x = float(x) * self.width
+                y = float(y) * self.height
 
                 mouse.position = (x, y)
 

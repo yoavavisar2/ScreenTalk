@@ -45,9 +45,10 @@ class StreamPage(Frame):
         width = self.width * 0.75
         height = self.height * 0.75
 
-        self.x, self.y = event.x // width, event.y // height
+        self.x, self.y = event.x / width, event.y / height
 
         data = "move:" + str(self.x) + "/" + str(self.y)
+        print(event.x)
         data = self.encrypt_aes(data.encode())
         self.socket.sendto(data, (self.other_user, 12346))
 
