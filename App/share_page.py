@@ -54,12 +54,10 @@ class SharePage(Frame):
                 y = float(y) * self.height
                 mouse.position = (x, y)
             if header == "click":
-                button, pressed = data.split(',')
+                button = data
                 btn = mouseButton.left if button == 'Button.left' else mouseButton.right
-                if pressed == 'True':
-                    mouse.press(btn)
-                else:
-                    mouse.release(btn)
+                mouse.press(btn)
+                mouse.release(btn)
             if header == "scroll":
                 dx, dy = data.split(',')
                 mouse.scroll(int(dx), int(dy))
@@ -77,8 +75,8 @@ class SharePage(Frame):
                     keyboard.press(key_mapping[data])
 
     def share(self):
-        try:
-            while True:
+        while True:
+            try:
                 # Capture the screen
                 screenshot = ImageGrab.grab()
 
@@ -87,13 +85,13 @@ class SharePage(Frame):
 
                 # Convert image to bytes
                 bio = BytesIO()
-                screenshot.save(bio, format="JPEG", quality=75)
+                screenshot.save(bio, format="JPEG", quality=50)
                 image_bytes = bio.getvalue()
 
                 # Send image data over UDP
                 self.socket.sendto(self.encrypt_aes(image_bytes), (self.other_user, 12345))
-        except Exception as e:
-            print(f"Error capturing or sending screen: {e}")
+            except Exception as e:
+                print(f"Error capturing or sending screen: {e}")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)

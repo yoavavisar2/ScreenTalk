@@ -49,7 +49,7 @@ class StreamPage(Frame):
         self.x, self.y = event.x / width, event.y / height
 
     def on_click(self, x, y, button, pressed):
-        event = f"click:{button},{pressed}\n"
+        event = f"click:{button}"
         self.events.append(event)
 
     def on_scroll(self, x, y, dx, dy):
@@ -92,8 +92,8 @@ class StreamPage(Frame):
         canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
         canvas.pack()
         canvas.bind("<Motion>", self.get_mouse_position)
-        try:
-            while True:
+        while True:
+            try:
                 # Receive image data over UDP
                 data, addr = self.socket.recvfrom(1024 * 1024)
                 data = self.decrypt_aes(data)
@@ -106,8 +106,8 @@ class StreamPage(Frame):
                 # Display image on canvas
                 canvas.create_image(0, 0, anchor=NW, image=photo)
                 canvas.image = photo  # Prevent garbage collection
-        except Exception as e:
-            print(f"Error receiving or displaying screen: {e}")
+            except Exception as e:
+                print(f"Error receiving or displaying screen: {e}")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
