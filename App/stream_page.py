@@ -10,6 +10,7 @@ from io import BytesIO
 from PIL import Image, ImageTk
 from pynput import keyboard
 from pynput import mouse
+from utils import pixels2points
 
 
 class StreamPage(Frame):
@@ -88,9 +89,17 @@ class StreamPage(Frame):
         data = self.encrypt_aes(data.encode())
         self.socket.sendto(data, (self.other_user, 12346))
 
+    def go_back(self):
+        pass
+
     def stream(self):
         canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
         canvas.pack()
+
+        font_size = pixels2points(self.width / 40)
+        Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
+               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN).pack(pady=self.height//15)
+        # TODO: exit button
         canvas.bind("<Motion>", self.get_mouse_position)
         while True:
             try:

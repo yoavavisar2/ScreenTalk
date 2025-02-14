@@ -73,6 +73,7 @@ class SharePage(Frame):
                     keyboard.press(data)
                 except:
                     keyboard.press(key_mapping[data])
+                    keyboard.release(key_mapping[data])
 
     def share(self):
         while True:
