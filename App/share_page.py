@@ -11,6 +11,7 @@ from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
+from choose_page import ChoosePage
 
 
 class SharePage(Frame):
@@ -74,6 +75,11 @@ class SharePage(Frame):
                 except:
                     keyboard.press(key_mapping[data])
                     keyboard.release(key_mapping[data])
+            elif header == "exit":
+                for widget in self.winfo_children():
+                    widget.destroy()
+                ChoosePage(self, self.width, self.height, self.client)
+                # TODO: exit
 
     def share(self):
         while True:

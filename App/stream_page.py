@@ -90,7 +90,8 @@ class StreamPage(Frame):
         self.socket.sendto(data, (self.other_user, 12346))
 
     def go_back(self):
-        pass
+        self.socket.sendto(self.encrypt_aes("exit:".encode()), (self.other_user, 12346))
+        # TODO: GO Back
 
     def stream(self):
         canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
@@ -99,7 +100,6 @@ class StreamPage(Frame):
         font_size = pixels2points(self.width / 40)
         Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
                fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN).pack(pady=self.height//15)
-        # TODO: exit button
         canvas.bind("<Motion>", self.get_mouse_position)
         while True:
             try:

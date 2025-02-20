@@ -140,7 +140,6 @@ class Server:
                                 text = other_client.encrypt("accept:" + client.addr[0])
                                 other_client.conn.send(text)
                                 other_client.conn.send(other_client.encrypt(key))
-                                # TODO: send key to client
                                 client.conn.send(client.encrypt(other_client.addr[0]))
                                 client.conn.send(client.encrypt(key))
                             if action == "deny":
