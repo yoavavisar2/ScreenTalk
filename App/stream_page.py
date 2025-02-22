@@ -11,10 +11,11 @@ from PIL import Image, ImageTk
 from pynput import keyboard
 from pynput import mouse
 from utils import pixels2points
+from App import App
 
 
 class StreamPage(Frame):
-    def __init__(self, root, width, height, client: Client, ip, key, back_func):
+    def __init__(self, root, width, height, client: Client, ip, key):
         super().__init__(root, bg="#031E49")
         self.client = client
         self.pack(fill="both", expand=True)
@@ -23,7 +24,6 @@ class StreamPage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
-        self.back = back_func
 
         self.x = 0
         self.y = 0
@@ -92,7 +92,12 @@ class StreamPage(Frame):
 
     def go_back(self):
         self.socket.sendto(self.encrypt_aes("exit:".encode()), (self.other_user, 12346))
-        self.back()
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.connected = False
+        self.socket.close()
+        self.destroy()
+        App()
         # TODO: GO Back
 
     def stream(self):
@@ -103,7 +108,7 @@ class StreamPage(Frame):
         Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
                fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN).pack(pady=self.height//15)
         canvas.bind("<Motion>", self.get_mouse_position)
-        while True:
+        while self.connected:
             try:
                 # Receive image data over UDP
                 data, addr = self.socket.recvfrom(1024 * 1024)
