@@ -77,6 +77,7 @@ class SharePage(Frame):
                     keyboard.press(key_mapping[data])
                     keyboard.release(key_mapping[data])
             elif header == "exit":
+                self.client.client.send(self.client.encrypt("ExitAllow:"))
                 for widget in self.winfo_children():
                     widget.destroy()
                 self.connected = False

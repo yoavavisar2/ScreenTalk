@@ -92,7 +92,6 @@ class StreamPage(Frame):
         self.socket.sendto(data, (self.other_user, 12346))
 
     def go_back(self):
-        print(123)
         self.socket.sendto(self.encrypt_aes("exit:".encode()), (self.other_user, 12346))
         for widget in self.winfo_children():
             widget.destroy()
