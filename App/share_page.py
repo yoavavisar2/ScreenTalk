@@ -11,11 +11,10 @@ from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
-from choose_page import ChoosePage
 
 
 class SharePage(Frame):
-    def __init__(self, root, width, height, client: Client, ip, key):
+    def __init__(self, root, width, height, client: Client, ip, key, back_func):
         super().__init__(root, bg="#000000")
         self.client = client
         self.pack(fill="both", expand=True)
@@ -24,6 +23,7 @@ class SharePage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
+        self.back = back_func
 
         if self.other_user == '127.0.0.1':
             self.ip = '127.0.0.1'
@@ -78,7 +78,7 @@ class SharePage(Frame):
             elif header == "exit":
                 for widget in self.winfo_children():
                     widget.destroy()
-                ChoosePage(self, self.width, self.height, self.client)
+                self.back()
                 # TODO: exit
 
     def share(self):

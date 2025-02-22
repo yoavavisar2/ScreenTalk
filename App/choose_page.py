@@ -72,7 +72,7 @@ class ChoosePage(Frame):
 
                     for widget in self.winfo_children():
                         widget.destroy()
-                    StreamPage(self, self.width, self.height, self.client, ip, key)
+                    StreamPage(self, self.width, self.height, self.client, ip, key, self.__init__(self, self.width, self.height, self.client))
 
             elif decrypted == "bad":
                 self.usernameVar.set("")
@@ -120,7 +120,7 @@ class ChoosePage(Frame):
 
         for widget in self.winfo_children():
             widget.destroy()
-        SharePage(self, self.width, self.height, self.client, ip, key)
+        SharePage(self, self.width, self.height, self.client, ip, key, self.__init__(self, self.width, self.height, self.client))
 
     def allow(self):
         encrypted_msg = self.client.encrypt("allow:")

@@ -14,7 +14,7 @@ from utils import pixels2points
 
 
 class StreamPage(Frame):
-    def __init__(self, root, width, height, client: Client, ip, key):
+    def __init__(self, root, width, height, client: Client, ip, key, back_func):
         super().__init__(root, bg="#031E49")
         self.client = client
         self.pack(fill="both", expand=True)
@@ -23,6 +23,7 @@ class StreamPage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
+        self.back = back_func
 
         self.x = 0
         self.y = 0
@@ -91,6 +92,7 @@ class StreamPage(Frame):
 
     def go_back(self):
         self.socket.sendto(self.encrypt_aes("exit:".encode()), (self.other_user, 12346))
+        self.back()
         # TODO: GO Back
 
     def stream(self):
