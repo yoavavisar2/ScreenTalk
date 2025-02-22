@@ -11,11 +11,10 @@ from PIL import Image, ImageTk
 from pynput import keyboard
 from pynput import mouse
 from utils import pixels2points
-from App import App
 
 
 class StreamPage(Frame):
-    def __init__(self, root, width, height, client: Client, ip, key):
+    def __init__(self, root, width, height, client: Client, ip, key, back):
         super().__init__(root, bg="#031E49")
         self.client = client
         self.pack(fill="both", expand=True)
@@ -24,6 +23,8 @@ class StreamPage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
+
+        self.back = back
 
         self.x = 0
         self.y = 0
@@ -97,7 +98,8 @@ class StreamPage(Frame):
         self.connected = False
         self.socket.close()
         self.destroy()
-        App()
+
+        self.back()
         # TODO: GO Back
 
     def stream(self):
