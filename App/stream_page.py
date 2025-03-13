@@ -64,15 +64,21 @@ class StreamPage(Frame):
         listener.start()
         while self.connected:
             try:
-                data = "move:" + str(self.x) + "/" + str(self.y)
-                data = self.encrypt_aes(data.encode())
-                self.socket.sendto(data, (self.other_user, 12347))
                 while self.events:
                     event = self.events.pop(0)
                     event = self.encrypt_aes(event.encode())
                     self.socket.sendto(event, (self.other_user, 12347))
             except socket.error:
                 self.connected = False
+
+    def send_mouse_position(self):
+        while self.connected:
+            try:
+                data = "move:" + str(self.x) + "/" + str(self.y)
+                data = self.encrypt_aes(data.encode())
+                self.socket.sendto(data, (self.other_user, 12348))
+            except Exception:
+                print(Exception)
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
