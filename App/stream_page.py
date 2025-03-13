@@ -1,3 +1,4 @@
+import time
 from tkinter import *
 from client import Client
 import socket
@@ -73,6 +74,8 @@ class StreamPage(Frame):
                     self.socket.sendto(event, (self.other_user, 12347))
             except socket.error:
                 self.connected = False
+
+    # TODO: send mouse events in tcp
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:

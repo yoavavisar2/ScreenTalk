@@ -1,5 +1,4 @@
 tcp 1234 - client server connection
 udp 12345 - screen
 udp 12346 - keyboard
-udp 12347 - mouse clicks
-udp 12348 - mouse position
+udp 12347 - mouse

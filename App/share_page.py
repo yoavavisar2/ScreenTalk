@@ -63,6 +63,7 @@ class SharePage(Frame):
             if header == "scroll":
                 dx, dy = data.split(',')
                 mouse.scroll(int(dx), int(dy))
+    # TODO: receive mouse events in tcp
 
     def receive_keyboard(self):
         keyboard = keyboardController()
