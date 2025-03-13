@@ -23,8 +23,6 @@ class SharePage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
-        self.mouse = mouseController()
-
 
         self.back = back
 
@@ -47,6 +45,7 @@ class SharePage(Frame):
         address = (self.ip, 12347)
         socket.bind(address)
 
+        mouse = mouseController()
         while self.connected:
             data, addr = socket.recvfrom(1024 * 1024)
             data = self.decrypt_aes(data).decode()
@@ -55,29 +54,15 @@ class SharePage(Frame):
                 x, y = data.split('/')
                 x = float(x) * self.width
                 y = float(y) * self.height
-                self.mouse.position = (x, y)
+                mouse.position = (x, y)
             if header == "click":
                 button = data
                 btn = mouseButton.left if button == 'Button.left' else mouseButton.right
-                self.mouse.press(btn)
-                self.mouse.release(btn)
+                mouse.press(btn)
+                mouse.release(btn)
             if header == "scroll":
                 dx, dy = data.split(',')
-                self.mouse.scroll(int(dx), int(dy))
-
-    def receive_mouse_position(self):
-        socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        address = (self.ip, 12348)
-        socket.bind(address)
-        while self.connected:
-            data, addr = socket.recvfrom(1024 * 1024)
-            data = self.decrypt_aes(data).decode()
-            header, data = data.split(":")
-            if header == "move":
-                x, y = data.split('/')
-                x = float(x) * self.width
-                y = float(y) * self.height
-                self.mouse.position = (x, y)
+                mouse.scroll(int(dx), int(dy))
 
     def receive_keyboard(self):
         keyboard = keyboardController()
