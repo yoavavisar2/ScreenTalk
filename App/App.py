@@ -6,7 +6,7 @@ from client import Client
 
 class App:
     def __init__(self):
-        self.client = Client("10.100.102.9")
+        self.client = Client("192.168.24.209")
 
         self.root = Tk()
         HomePage(self.root, self.client)

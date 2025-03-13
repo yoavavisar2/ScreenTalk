@@ -102,6 +102,21 @@ class StreamPage(Frame):
         self.back()
         # TODO: GO Back
 
+    def recieve(self):
+        chunk_size = 4096
+        chunks = []
+        while True:
+            data, addr = self.socket.recvfrom(chunk_size)
+            data = self.decrypt_aes(data)
+            if data == b'END':
+                break
+            chunks.append(data)
+
+        image = b""
+        for chunk in chunks:
+            image += chunk
+        return image
+
     def stream(self):
         canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
         canvas.pack()
@@ -113,8 +128,7 @@ class StreamPage(Frame):
         while self.connected:
             try:
                 # Receive image data over UDP
-                data, addr = self.socket.recvfrom(1024 * 1024)
-                data = self.decrypt_aes(data)
+                data = self.recieve()
 
                 # Convert bytes to image
                 image = Image.open(BytesIO(data))

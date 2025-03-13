@@ -87,6 +87,13 @@ class SharePage(Frame):
                 self.back()
                 # TODO: exit
 
+    def send_image(self, image_bytes):
+        chunk_size = 4096
+        for i in range(0, len(image_bytes), chunk_size):
+            chunk = image_bytes[i:i + chunk_size]
+            self.socket.sendto(self.encrypt_aes(chunk), (self.other_user, 12345))
+        self.socket.sendto("end", (self.other_user, 12345))
+
     def share(self):
         while self.connected:
             try:
@@ -101,8 +108,7 @@ class SharePage(Frame):
                 screenshot.save(bio, format="JPEG", quality=50)
                 image_bytes = bio.getvalue()
 
-                # Send image data over UDP
-                self.socket.sendto(self.encrypt_aes(image_bytes), (self.other_user, 12345))
+                self.send_image(image_bytes)
             except Exception as e:
                 print(f"Error capturing or sending screen: {e}")
 
