@@ -100,7 +100,6 @@ class StreamPage(Frame):
         self.destroy()
 
         self.back()
-        # TODO: GO Back
 
     def receive(self):
         chunk_size = 4096 + 64
