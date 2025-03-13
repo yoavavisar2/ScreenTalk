@@ -92,7 +92,7 @@ class SharePage(Frame):
         for i in range(0, len(image_bytes), chunk_size):
             chunk = image_bytes[i:i + chunk_size]
             self.socket.sendto(self.encrypt_aes(chunk), (self.other_user, 12345))
-        self.socket.sendto("end", (self.other_user, 12345))
+        self.socket.sendto(self.encrypt_aes(b"end"), (self.other_user, 12345))
 
     def share(self):
         while self.connected:

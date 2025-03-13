@@ -102,7 +102,7 @@ class StreamPage(Frame):
         self.back()
         # TODO: GO Back
 
-    def recieve(self):
+    def receive(self):
         chunk_size = 4096
         chunks = []
         while True:
@@ -112,9 +112,7 @@ class StreamPage(Frame):
                 break
             chunks.append(data)
 
-        image = b""
-        for chunk in chunks:
-            image += chunk
+        image = b"".join(chunks[i] for i in range(len(chunks)))
         return image
 
     def stream(self):
@@ -128,7 +126,7 @@ class StreamPage(Frame):
         while self.connected:
             try:
                 # Receive image data over UDP
-                data = self.recieve()
+                data = self.receive()
 
                 # Convert bytes to image
                 image = Image.open(BytesIO(data))
