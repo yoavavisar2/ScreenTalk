@@ -107,7 +107,7 @@ class StreamPage(Frame):
         while True:
             data, addr = self.socket.recvfrom(chunk_size)
             data = self.decrypt_aes(data)
-            if data == b'END':
+            if data == b'end':
                 break
             chunks.append(data)
 
