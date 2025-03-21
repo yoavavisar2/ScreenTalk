@@ -41,7 +41,7 @@ class SharePage(Frame):
         threading.Thread(target=self.receive_mouse).start()
 
     def mouse_events(self, mouse):
-        host = self.client.host
+        host = s.gethostbyname(s.gethostname())
         port = 9999
 
         server = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -69,7 +69,7 @@ class SharePage(Frame):
 
         mouse = mouseController()
 
-        threading.Thread(target=self.mouse_events, args=(mouse,))
+        threading.Thread(target=self.mouse_events, args=(mouse,)).start()
 
         while self.connected:
             data, addr = socket.recvfrom(1024 * 1024)

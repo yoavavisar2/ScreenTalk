@@ -72,8 +72,8 @@ class StreamPage(Frame):
                 event = self.encrypt_aes(event.encode())
                 event_client.send(event)
 
-
     def send_mouse(self):
+        threading.Thread(target=self.send_events).start()
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
         while self.connected:
