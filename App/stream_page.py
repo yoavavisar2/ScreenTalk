@@ -73,9 +73,9 @@ class StreamPage(Frame):
                 event_client.send(event)
 
     def send_mouse(self):
-        threading.Thread(target=self.send_events).start()
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
+        threading.Thread(target=self.send_events).start()
         while self.connected:
             try:
                 data = "move:" + str(self.x) + "/" + str(self.y)

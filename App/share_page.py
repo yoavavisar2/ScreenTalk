@@ -65,13 +65,12 @@ class SharePage(Frame):
                 mouse.scroll(int(dx), int(dy))
 
     def receive_mouse(self):
+        mouse = mouseController()
+        threading.Thread(target=self.mouse_events, args=(mouse,)).start()
+
         socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         address = (self.ip, 12347)
         socket.bind(address)
-
-        mouse = mouseController()
-
-        threading.Thread(target=self.mouse_events, args=(mouse,)).start()
 
         while self.connected:
             data, addr = socket.recvfrom(1024 * 1024)
