@@ -60,29 +60,22 @@ class StreamPage(Frame):
         event = f"scroll:{dx},{dy}\n"
         self.events.append(event)
 
-    def send_events(self):
-        host = self.other_user
-        port = 9999
-        event_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        event_client.connect((host, port))
-
-        while self.connected:
-            while self.events:
-                event = self.events.pop(0)
-                event = self.encrypt_aes(event.encode())
-                event_client.send(event)
-
     def send_mouse(self):
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
-        threading.Thread(target=self.send_events).start()
         while self.connected:
             try:
                 data = "move:" + str(self.x) + "/" + str(self.y)
                 data = self.encrypt_aes(data.encode())
                 self.socket.sendto(data, (self.other_user, 12347))
+                while self.events:
+                    event = self.events.pop(0)
+                    event = self.encrypt_aes(event.encode())
+                    self.socket.sendto(event, (self.other_user, 12347))
             except socket.error:
                 self.connected = False
+
+    # TODO: send mouse events in tcp
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
@@ -130,7 +123,8 @@ class StreamPage(Frame):
 
         font_size = pixels2points(self.width / 40)
         Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
-               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.go_back).pack(pady=self.height//15)
+               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN,
+               command=self.go_back).pack(pady=self.height // 15)
         canvas.bind("<Motion>", self.get_mouse_position)
         while self.connected:
             try:
