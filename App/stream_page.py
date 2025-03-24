@@ -1,4 +1,3 @@
-import time
 from tkinter import *
 from client import Client
 import socket
@@ -75,8 +74,6 @@ class StreamPage(Frame):
             except socket.error:
                 self.connected = False
 
-    # TODO: send mouse events in tcp
-
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
             while self.connected:
@@ -112,7 +109,7 @@ class StreamPage(Frame):
             data = self.decrypt_aes(data)
             if data == b'end':
                 break
-            chunks.append(data)
+        chunks.append(data)
 
         image = b"".join(chunks[i] for i in range(len(chunks)))
         return image
