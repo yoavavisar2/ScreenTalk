@@ -48,8 +48,10 @@ class SharePage(Frame):
         server.bind((host, port))
         server.listen()
 
+        c, addr = server.accept()
+
         while self.connected:
-            event = server.recv(1024)
+            event = c.recv(1024)
             event = self.client.decrypt(event).decode()
 
             header, data = event.split(':')
