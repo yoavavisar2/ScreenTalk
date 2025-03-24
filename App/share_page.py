@@ -40,6 +40,18 @@ class SharePage(Frame):
         threading.Thread(target=self.receive_keyboard).start()
         threading.Thread(target=self.receive_mouse).start()
 
+    def mouse_clicks(self):
+        hostname = s.gethostname()
+        IPAddr = s.gethostbyname(hostname)
+        port = 1122
+        server_socket = s.socket()
+        server_socket.bind((IPAddr, port))
+        server_socket.listen(1)
+        conn, address = server_socket.accept()
+        while self.connected:
+            data = conn.recv(1024)
+            print(data)
+
     def receive_mouse(self):
         socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         address = (self.ip, 12347)

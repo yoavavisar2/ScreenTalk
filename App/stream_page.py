@@ -52,8 +52,9 @@ class StreamPage(Frame):
         self.x, self.y = event.x / width, event.y / height
 
     def on_click(self, x, y, button, pressed):
-        event = f"click:{button}"
-        self.events.append(event)
+        if pressed:
+            event = f"click:{button}"
+            self.events.append(event)
 
     def on_scroll(self, x, y, dx, dy):
         event = f"scroll:{dx},{dy}\n"
@@ -62,6 +63,13 @@ class StreamPage(Frame):
     def send_mouse(self):
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
+
+        # tcp socket for mouse events
+        host = self.other_user
+        port = 1122
+        event_socket = socket.socket()
+        event_socket.connect((host, port))
+
         while self.connected:
             try:
                 data = "move:" + str(self.x) + "/" + str(self.y)
@@ -70,7 +78,7 @@ class StreamPage(Frame):
                 while self.events:
                     event = self.events.pop(0)
                     event = self.encrypt_aes(event.encode())
-                    self.socket.sendto(event, (self.other_user, 12347))
+                    event_socket.send(event)
             except socket.error:
                 self.connected = False
 
