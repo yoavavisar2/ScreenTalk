@@ -1,4 +1,3 @@
-import time
 from tkinter import *
 from client import Client
 import socket
@@ -60,20 +59,7 @@ class StreamPage(Frame):
         event = f"scroll:{dx},{dy}\n"
         self.events.append(event)
 
-    def send_events(self):
-        host = self.other_user
-        port = 9999
-        event_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        event_client.connect((host, port))
-
-        while self.connected:
-            while self.events:
-                event = self.events.pop(0)
-                event = self.encrypt_aes(event.encode())
-                event_client.send(event)
-
     def send_mouse(self):
-        threading.Thread(target=self.send_events).start()
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
         while self.connected:
@@ -81,6 +67,10 @@ class StreamPage(Frame):
                 data = "move:" + str(self.x) + "/" + str(self.y)
                 data = self.encrypt_aes(data.encode())
                 self.socket.sendto(data, (self.other_user, 12347))
+                while self.events:
+                    event = self.events.pop(0)
+                    event = self.encrypt_aes(event.encode())
+                    self.socket.sendto(event, (self.other_user, 12347))
             except socket.error:
                 self.connected = False
 
