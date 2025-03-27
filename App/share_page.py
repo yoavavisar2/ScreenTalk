@@ -11,6 +11,7 @@ from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
+import time
 
 
 class SharePage(Frame):
@@ -52,7 +53,7 @@ class SharePage(Frame):
 
         mouse = mouseController()
         while self.connected:
-            data = conn.recv(1024)
+            data = conn.recv(65535)
             data = self.decrypt_aes(data).decode()
             header, data = data.split(":")
             if header == "move":
@@ -65,6 +66,7 @@ class SharePage(Frame):
                     button = data
                     btn = mouseButton.left if button == 'Button.left' else mouseButton.right
                     mouse.press(btn)
+                    time.sleep(0.05)
                     mouse.release(btn)
                 elif header == "scroll":
                     dx, dy = data.split(',')

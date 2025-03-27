@@ -75,7 +75,7 @@ class StreamPage(Frame):
                 while self.events:
                     event = self.events.pop(0)
                     event = self.encrypt_aes(event.encode())
-                    mouse_socket.send(data)
+                    mouse_socket.send(event)
             except socket.error:
                 self.connected = False
 
