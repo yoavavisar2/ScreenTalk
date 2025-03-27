@@ -63,19 +63,15 @@ class StreamPage(Frame):
     def send_mouse(self):
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
-
-        mouse_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        mouse_socket.connect((self.other_user, 12347))
-
         while self.connected:
             try:
                 data = "move:" + str(self.x) + "/" + str(self.y)
                 data = self.encrypt_aes(data.encode())
-                mouse_socket.send(data)
+                self.socket.sendto(data, (self.other_user, 12347))
                 while self.events:
                     event = self.events.pop(0)
                     event = self.encrypt_aes(event.encode())
-                    mouse_socket.send(event)
+                    self.socket.sendto(event, (self.other_user, 12347))
             except socket.error:
                 self.connected = False
 

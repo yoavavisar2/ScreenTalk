@@ -11,7 +11,6 @@ from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
-import time
 
 
 class SharePage(Frame):
@@ -42,18 +41,13 @@ class SharePage(Frame):
         threading.Thread(target=self.receive_mouse).start()
 
     def receive_mouse(self):
-        socket = s.socket(s.AF_INET, s.SOCK_STREAM)
-        hostname = s.gethostname()
-        IPAddr = s.gethostbyname(hostname)
-
-        address = (IPAddr, 12347)
+        socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+        address = (self.ip, 12347)
         socket.bind(address)
-        socket.listen()
-        conn, addr = socket.accept()
 
         mouse = mouseController()
         while self.connected:
-            data = conn.recv(65535)
+            data, addr = socket.recvfrom(1024 * 1024)
             data = self.decrypt_aes(data).decode()
             header, data = data.split(":")
             if header == "move":
@@ -62,11 +56,11 @@ class SharePage(Frame):
                 y = float(y) * self.height
                 mouse.position = (x, y)
             else:
+                self.socket.sendto(self.encrypt_aes(b"button"), (self.other_user, 12347))
                 if header == "click":
                     button = data
                     btn = mouseButton.left if button == 'Button.left' else mouseButton.right
                     mouse.press(btn)
-                    time.sleep(0.05)
                     mouse.release(btn)
                 elif header == "scroll":
                     dx, dy = data.split(',')
