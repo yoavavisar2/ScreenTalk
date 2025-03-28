@@ -37,7 +37,7 @@ class SharePage(Frame):
         self.socket.bind(self.address)
 
         self.mouse_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
-        self.mouse_socket.bind((self.other_user, 12347))
+        self.mouse_socket.bind((s.gethostbyname(s.gethostname()), 12347))
         self.mouse_socket.listen(1)
         self.conn, _ = self.mouse_socket.accept()
 
@@ -87,7 +87,6 @@ class SharePage(Frame):
                 self.destroy()
 
                 self.back()
-
 
     def send_image(self, image_bytes):
         chunk_size = 4096
