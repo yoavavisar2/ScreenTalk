@@ -23,10 +23,12 @@ class StreamPage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
+
         self.back = back
 
         self.x = 0
         self.y = 0
+
         self.events = []
 
         if self.other_user == '127.0.0.1':
@@ -34,6 +36,10 @@ class StreamPage(Frame):
         else:
             hostname = socket.gethostname()
             self.ip = socket.gethostbyname(hostname)
+
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.address = (self.ip, 12345)
+        self.socket.bind(self.address)
 
         self.mouse_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.mouse_socket.connect((self.other_user, 12347))
@@ -45,11 +51,12 @@ class StreamPage(Frame):
     def get_mouse_position(self, event):
         width = self.width * 0.75
         height = self.height * 0.75
+
         self.x, self.y = event.x / width, event.y / height
 
     def on_click(self, x, y, button, pressed):
         if pressed:
-            event = f"click:{button}\n"
+            event = f"click:{button}"
             self.events.append(event)
 
     def on_scroll(self, x, y, dx, dy):
@@ -72,6 +79,9 @@ class StreamPage(Frame):
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
             while self.connected:
+                if not self.connected:
+                    listener.stop()
+                    break
                 listener.join(1)
 
     def on_press(self, key_pressed):
@@ -81,23 +91,78 @@ class StreamPage(Frame):
             key = str(key_pressed)
         data = "keyboard:" + key
         data = self.encrypt_aes(data.encode())
-        self.mouse_socket.sendall(data)
+        self.socket.sendto(data, (self.other_user, 12346))
+
+    def go_back(self):
+        self.socket.sendto(self.encrypt_aes("exit:".encode()), (self.other_user, 12346))
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.connected = False
+        self.socket.close()
+        self.destroy()
+
+        self.back()
+
+    def receive(self):
+        chunk_size = 4096 + 64
+        chunks = []
+        while True:
+            data, addr = self.socket.recvfrom(chunk_size)
+            data = self.decrypt_aes(data)
+            if data == b'end':
+                break
+            chunks.append(data)
+
+        image = b"".join(chunks[i] for i in range(len(chunks)))
+        return image
+
+    def stream(self):
+        canvas = Canvas(self, width=self.width * 0.75, height=self.height * 0.75)
+        canvas.pack()
+
+        font_size = pixels2points(self.width / 40)
+        Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
+               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.go_back).pack(pady=self.height//15)
+        canvas.bind("<Motion>", self.get_mouse_position)
+        while self.connected:
+            try:
+                # Receive image data over UDP
+                data = self.receive()
+
+                # Convert bytes to image
+                image = Image.open(BytesIO(data))
+                image = image.resize((int(self.width * 0.75), int(self.height * 0.75)))
+                photo = ImageTk.PhotoImage(image)
+
+                # Display image on canvas
+                canvas.create_image(0, 0, anchor=NW, image=photo)
+                canvas.image = photo  # Prevent garbage collection
+            except Exception as e:
+                print(f"Error receiving or displaying screen: {e}")
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
+
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
         encryptor = cipher.encryptor()
+
         padder = padding.PKCS7(algorithms.AES.block_size).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
+
         ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
+
         return iv + ciphertext
 
     def decrypt_aes(self, encrypted_data) -> bytes:
         iv = encrypted_data[:16]
         ciphertext = encrypted_data[16:]
+
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
+
         padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
         unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
+
         return plaintext
