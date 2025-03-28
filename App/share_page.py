@@ -11,6 +11,7 @@ from io import BytesIO
 from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
+import struct
 
 
 class SharePage(Frame):
@@ -48,11 +49,21 @@ class SharePage(Frame):
     def receive_mouse(self):
         mouse = mouseController()
         while self.connected:
-            data = self.conn.recv(1024)
-            if not data:
-                break
-            data = self.decrypt_aes(data).decode()
-            header, data = data.split(":")
+            length_data = self.conn.recv(4)
+            if not length_data:
+                break  # Connection closed
+            message_length = struct.unpack("!I", length_data)[0]
+            data = b""
+
+            while len(data) < message_length:
+                packet = self.conn.recv(message_length - len(data))
+                if not packet:
+                    break  # Connection closed
+                data += packet
+
+            decrypted_data = self.decrypt_aes(data).decode()
+
+            header, data = decrypted_data.split(":")
             if header == "move":
                 x, y = data.split('/')
                 x = float(x) * self.width

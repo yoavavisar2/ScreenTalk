@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 from pynput import keyboard
 from pynput import mouse
 from utils import pixels2points
+import struct
 
 
 class StreamPage(Frame):
@@ -68,11 +69,17 @@ class StreamPage(Frame):
         listener.start()
         while self.connected:
             try:
-                data = f"move:{self.x}/{self.y}\n"
-                self.mouse_socket.sendall(self.encrypt_aes(data.encode()))
+                data = f"move:{self.x}/{self.y}"
+
+                encrypted_data = self.encrypt_aes(data.encode())
+                message_length = struct.pack("!I", len(encrypted_data))
+                self.mouse_socket.sendall(message_length + encrypted_data)
+
                 while self.events:
                     event = self.events.pop(0)
-                    self.mouse_socket.sendall(self.encrypt_aes(event.encode()))
+                    encrypted_data = self.encrypt_aes(event.encode())
+                    message_length = struct.pack("!I", len(encrypted_data))
+                    self.mouse_socket.sendall(message_length + encrypted_data)
             except socket.error:
                 self.connected = False
 
