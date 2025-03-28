@@ -23,31 +23,21 @@ class SharePage(Frame):
         self.other_user = ip
         self.connected = True
         self.key = key
-
         self.back = back
 
-        if self.other_user == '127.0.0.1':
-            self.ip = '127.0.0.1'
-        else:
-            hostname = s.gethostname()
-            self.ip = s.gethostbyname(hostname)
+        self.mouse_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.mouse_socket.bind((self.other_user, 12347))
+        self.mouse_socket.listen(1)
+        self.conn, _ = self.mouse_socket.accept()
 
-        self.socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        self.address = (self.ip, 12346)
-        self.socket.bind(self.address)
-
-        threading.Thread(target=self.share).start()
-        threading.Thread(target=self.receive_keyboard).start()
         threading.Thread(target=self.receive_mouse).start()
 
     def receive_mouse(self):
-        socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        address = (self.ip, 12347)
-        socket.bind(address)
-
-        mouse = mouseController()
+        mouse = mouse.Controller()
         while self.connected:
-            data, addr = socket.recvfrom(1024 * 1024)
+            data = self.conn.recv(1024)
+            if not data:
+                break
             data = self.decrypt_aes(data).decode()
             header, data = data.split(":")
             if header == "move":
@@ -55,88 +45,29 @@ class SharePage(Frame):
                 x = float(x) * self.width
                 y = float(y) * self.height
                 mouse.position = (x, y)
-            else:
-                self.socket.sendto(self.encrypt_aes(b"button"), (self.other_user, 12347))
-                if header == "click":
-                    button = data
-                    btn = mouseButton.left if button == 'Button.left' else mouseButton.right
-                    mouse.press(btn)
-                    mouse.release(btn)
-                elif header == "scroll":
-                    dx, dy = data.split(',')
-                    mouse.scroll(int(dx), int(dy))
-
-    def receive_keyboard(self):
-        keyboard = keyboardController()
-        while self.connected:
-            data, addr = self.socket.recvfrom(1024 * 1024)
-            data = self.decrypt_aes(data).decode()
-            header, data = data.split(":")
-            if header == "keyboard":
-                try:
-                    keyboard.press(data)
-                except:
-                    keyboard.press(key_mapping[data])
-                    keyboard.release(key_mapping[data])
-            elif header == "exit":
-                self.client.client.send(self.client.encrypt("ExitAllow:"))
-                for widget in self.winfo_children():
-                    widget.destroy()
-                self.connected = False
-                self.socket.close()
-                self.destroy()
-
-                self.back()
-                # TODO: exit
-
-    def send_image(self, image_bytes):
-        chunk_size = 4096
-        for i in range(0, len(image_bytes), chunk_size):
-            chunk = image_bytes[i:i + chunk_size]
-            self.socket.sendto(self.encrypt_aes(chunk), (self.other_user, 12345))
-        self.socket.sendto(self.encrypt_aes(b"end"), (self.other_user, 12345))
-
-    def share(self):
-        while self.connected:
-            try:
-                # Capture the screen
-                screenshot = ImageGrab.grab()
-
-                # Resize for better performance (optional)
-                screenshot = screenshot.resize((1440, 810))
-
-                # Convert image to bytes
-                bio = BytesIO()
-                screenshot.save(bio, format="JPEG", quality=75)
-                image_bytes = bio.getvalue()
-
-                self.send_image(image_bytes)
-            except Exception as e:
-                print(f"Error capturing or sending screen: {e}")
+            elif header == "click":
+                button = mouse.Button.left if data == 'Button.left' else mouse.Button.right
+                mouse.press(button)
+                mouse.release(button)
+            elif header == "scroll":
+                dx, dy = map(int, data.split(','))
+                mouse.scroll(dx, dy)
 
     def encrypt_aes(self, plaintext: bytes):
         iv = os.urandom(16)
-
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
         encryptor = cipher.encryptor()
-
         padder = padding.PKCS7(algorithms.AES.block_size).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
-
         ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
-
         return iv + ciphertext
 
     def decrypt_aes(self, encrypted_data) -> bytes:
         iv = encrypted_data[:16]
         ciphertext = encrypted_data[16:]
-
         cipher = Cipher(algorithms.AES(self.key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
-
         padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-
         unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
         plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
-
         return plaintext
