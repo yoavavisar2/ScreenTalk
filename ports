@@ -1,4 +1,5 @@
 tcp 1234 - client server connection
 udp 12345 - screen
 udp 12346 - keyboard
-udp 12347 - mouse
+tcp 12347 - mouse
+1238 - voice chat

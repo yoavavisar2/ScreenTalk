@@ -12,6 +12,7 @@ from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
 import struct
+import voice_chat
 
 
 class SharePage(Frame):
@@ -37,14 +38,18 @@ class SharePage(Frame):
         self.address = (self.ip, 12346)
         self.socket.bind(self.address)
 
+        local_ip = s.gethostbyname(s.gethostname())
+
         self.mouse_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
-        self.mouse_socket.bind((s.gethostbyname(s.gethostname()), 12347))
+        self.mouse_socket.bind((local_ip, 12347))
         self.mouse_socket.listen(1)
         self.conn, _ = self.mouse_socket.accept()
 
         threading.Thread(target=self.share).start()
         threading.Thread(target=self.receive_keyboard).start()
         threading.Thread(target=self.receive_mouse).start()
+
+        voice_chat.voiceChat(local_ip, self.other_user, 1238)
 
     def receive_mouse(self):
         mouse = mouseController()

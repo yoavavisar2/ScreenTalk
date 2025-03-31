@@ -12,6 +12,7 @@ from pynput import keyboard
 from pynput import mouse
 from utils import pixels2points
 import struct
+import voice_chat
 
 
 class StreamPage(Frame):
@@ -48,6 +49,7 @@ class StreamPage(Frame):
         threading.Thread(target=self.stream).start()
         threading.Thread(target=self.send_keyboard).start()
         threading.Thread(target=self.send_mouse).start()
+        voice_chat.voiceChat(socket.gethostbyname(socket.gethostname()), self.other_user, 1238)
 
     def get_mouse_position(self, event):
         width = self.width * 0.75
