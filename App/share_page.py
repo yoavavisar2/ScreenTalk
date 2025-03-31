@@ -105,7 +105,7 @@ class SharePage(Frame):
                 self.back()
 
     def send_image(self, image_bytes):
-        chunk_size = 4096
+        chunk_size = 8192 # TODO: maybe not working
         for i in range(0, len(image_bytes), chunk_size):
             chunk = image_bytes[i:i + chunk_size]
             self.socket.sendto(self.encrypt_aes(chunk), (self.other_user, 12345))

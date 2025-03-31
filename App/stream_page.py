@@ -113,7 +113,7 @@ class StreamPage(Frame):
         self.back()
 
     def receive(self):
-        chunk_size = 4096 + 64
+        chunk_size = 8192 + 64
         chunks = []
         while True:
             data, addr = self.socket.recvfrom(chunk_size)
