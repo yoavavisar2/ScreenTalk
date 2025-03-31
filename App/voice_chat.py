@@ -4,7 +4,7 @@ import threading
 
 def voiceChat(local, remote, port):
     receiver = AudioReceiver(local, port)
-    threading.Thread(target=receiver.start_server)
+    threading.Thread(target=receiver.start_server).start()
 
     sender = AudioSender(remote, port)
-    threading.Thread(target=sender.start_stream)
+    threading.Thread(target=sender.start_stream).start()
