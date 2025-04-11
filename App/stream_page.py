@@ -13,6 +13,7 @@ from pynput import mouse
 from utils import pixels2points
 import struct
 import voice_chat
+import time
 
 
 class StreamPage(Frame):
@@ -44,6 +45,7 @@ class StreamPage(Frame):
         self.socket.bind(self.address)
 
         self.mouse_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.mouse_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.mouse_socket.connect((self.other_user, 12347))
 
         threading.Thread(target=self.stream).start()
@@ -69,21 +71,32 @@ class StreamPage(Frame):
     def send_mouse(self):
         listener = mouse.Listener(on_click=self.on_click, on_scroll=self.on_scroll)
         listener.start()
+
+        target_interval = 1 / 60  # ~16.67 ms
+        last_sent_time = 0
+
         while self.connected:
-            try:
-                data = f"move:{self.x}/{self.y}"
-
-                encrypted_data = self.encrypt_aes(data.encode())
-                message_length = struct.pack("!I", len(encrypted_data))
-                self.mouse_socket.sendall(message_length + encrypted_data)
-
-                while self.events:
-                    event = self.events.pop(0)
-                    encrypted_data = self.encrypt_aes(event.encode())
+            current_time = time.time()
+            if current_time - last_sent_time >= target_interval:
+                try:
+                    data = f"move:{self.x}/{self.y}"
+                    encrypted_data = self.encrypt_aes(data.encode())
                     message_length = struct.pack("!I", len(encrypted_data))
                     self.mouse_socket.sendall(message_length + encrypted_data)
-            except socket.error:
-                self.connected = False
+
+                    # Send queued mouse events (clicks, scrolls)
+                    while self.events:
+                        event = self.events.pop(0)
+                        encrypted_data = self.encrypt_aes(event.encode())
+                        message_length = struct.pack("!I", len(encrypted_data))
+                        self.mouse_socket.sendall(message_length + encrypted_data)
+
+                    last_sent_time = current_time
+
+                except socket.error:
+                    self.connected = False
+            else:
+                time.sleep(0.001)  # Light sleep to avoid busy-waiting
 
     def send_keyboard(self):
         with keyboard.Listener(on_press=self.on_press) as listener:
