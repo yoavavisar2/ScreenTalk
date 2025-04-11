@@ -12,7 +12,7 @@ from pynput import keyboard
 from pynput import mouse
 from utils import pixels2points
 import struct
-import voice_chat
+from voice_chat import VoiceChat
 import time
 
 
@@ -51,7 +51,9 @@ class StreamPage(Frame):
         threading.Thread(target=self.stream).start()
         threading.Thread(target=self.send_keyboard).start()
         threading.Thread(target=self.send_mouse).start()
-        voice_chat.voiceChat(socket.gethostbyname(socket.gethostname()), self.other_user, 1238)
+
+        self.vc = VoiceChat(socket.gethostbyname(socket.gethostname()), self.other_user, 1238)
+        self.vc.start()
 
     def get_mouse_position(self, event):
         width = self.width * 0.75
@@ -120,6 +122,7 @@ class StreamPage(Frame):
         for widget in self.winfo_children():
             widget.destroy()
         self.connected = False
+        self.vc.stop()
         self.socket.close()
         self.destroy()
 

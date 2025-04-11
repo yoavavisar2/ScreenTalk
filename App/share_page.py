@@ -12,7 +12,7 @@ from pynput.keyboard import Controller as keyboardController
 from pynput.mouse import Button as mouseButton, Controller as mouseController
 from keys import key_mapping
 import struct
-import voice_chat
+from voice_chat import VoiceChat
 
 
 class SharePage(Frame):
@@ -49,7 +49,8 @@ class SharePage(Frame):
         threading.Thread(target=self.receive_keyboard).start()
         threading.Thread(target=self.receive_mouse).start()
 
-        voice_chat.voiceChat(local_ip, self.other_user, 1238)
+        self.vc = VoiceChat(local_ip, self.other_user, 1238)
+        self.vc.start()
 
     def receive_mouse(self):
         mouse = mouseController()
@@ -95,17 +96,19 @@ class SharePage(Frame):
                     keyboard.press(key_mapping[data])
                     keyboard.release(key_mapping[data])
             elif header == "exit":
+                # stop connection
                 self.client.client.send(self.client.encrypt("ExitAllow:"))
                 for widget in self.winfo_children():
                     widget.destroy()
                 self.connected = False
+                self.vc.stop()
                 self.socket.close()
                 self.destroy()
 
                 self.back()
 
     def send_image(self, image_bytes):
-        chunk_size = 8192 # TODO: maybe not working
+        chunk_size = 8192
         for i in range(0, len(image_bytes), chunk_size):
             chunk = image_bytes[i:i + chunk_size]
             self.socket.sendto(self.encrypt_aes(chunk), (self.other_user, 12345))
