@@ -147,7 +147,8 @@ class StreamPage(Frame):
 
         font_size = pixels2points(self.width / 40)
         Button(self, text="EXIT", width=self.width // 150, bg="#DC143C", font=("ariel", font_size),
-               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN, command=self.go_back).pack(pady=self.height//15)
+               fg="white", activebackground="#DC143C", activeforeground="white", bd=0, relief=SUNKEN,
+               command=self.go_back).pack(pady=self.height//15)
         canvas.bind("<Motion>", self.get_mouse_position)
         while self.connected:
             try:

@@ -13,14 +13,27 @@ pepper = "yoav123"
 
 
 def hashing(text, salt):
+    """
+    hashing the data
+    :param text: text to hash
+    :param salt: random bytes
+    :return: hashed data
+    """
+    # pepper is a global variable
     global pepper
+    # adding salt and pepper
     data = salt + text.encode() + pepper.encode()
+    # hashing the data 10 time to make it safer
     for _ in range(10):
         data = sha256(data).digest()
     return data
 
 
 def make_keys():
+    """
+    generating the rsa keys
+    :return: private key and public key
+    """
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     public_key = private_key.public_key()
     return private_key, public_key
@@ -42,6 +55,10 @@ class Client:
         self.public_key = None
 
     def decrypt(self, encrypted_text):
+        """
+        :param encrypted_text:
+        :return: the decrypted text
+        """
         decrypted_message = self.private_key.decrypt(
             encrypted_text,
             padding.OAEP(
@@ -54,6 +71,10 @@ class Client:
         return decrypted_message
 
     def encrypt(self, text):
+        """
+        :param text:
+        :return: the encrypted text
+        """
         try:
             text = text.encode()
         except:
@@ -69,6 +90,12 @@ class Client:
 
 
 def is_user_exist(username, cursor: sqlite3.Cursor):
+    """
+    check if the user exists in the database based on username
+    :param username:
+    :param cursor: sqlite3 cursor
+    :return: boolean
+    """
     cursor.execute('SELECT 1 FROM users WHERE username = ?', (username,))
     return cursor.fetchone() is not None
 
@@ -89,6 +116,11 @@ class Server:
         self.start()
 
     def handle_client(self, client: Client):
+        """
+        handle client actions and messages
+        :param client: client object
+        :return: none
+        """
         print("[NEW CONNECTION]")
         self.clients.append(client)
 
@@ -117,34 +149,51 @@ class Server:
                     if header == "ExitAllow":
                         self.allow_list.remove(client)
                     if header == "control":
-                        username = data
-                        names = []
-                        response = "bad"
+                        username = data  # Username being requested for control
+                        names = []  # List to hold usernames of allowed clients
+                        response = "bad"  # Default response is "bad" (not allowed)
+
+                        # Collect usernames from allowed clients
                         for allow_client in self.allow_list:
                             names.append(allow_client.username)
+
+                        # If requested username is in the list of allowed usernames
                         if username in names:
+                            # Find the corresponding client object
                             for allow_client in self.allow_list:
                                 if allow_client.username == username:
+                                    # Send encrypted control request to the allowed client
                                     msg = allow_client.encrypt(client.username)
                                     allow_client.conn.send(msg)
-                                    response = "good"
+                                    response = "good"  # Mark response as "good" if found
+
+                        # Send encrypted response back to the requesting client
                         encrypted = client.encrypt(response)
                         client.conn.send(encrypted)
+
+                    # Handle "choose" header: one client is accepting or denying a control request
                     if header == "choose":
-                        action, username = data.split(',')
-                        other_client = self.get_user_by_username(username)
+                        action, username = data.split(',')  # Action ("accept"/"deny") and username of other client
+                        other_client = self.get_user_by_username(username)  # Get the client object by username
+
                         if other_client:
                             if action == "accept":
-                                key = os.urandom(32)
+                                key = os.urandom(32)  # Generate a 256-bit encryption key
 
+                                # Notify the other client that the request is accepted and send connection details
                                 text = other_client.encrypt("accept:" + client.addr[0])
                                 other_client.conn.send(text)
                                 other_client.conn.send(other_client.encrypt(key))
+
+                                # Send the same info (IP and key) to the requesting client
                                 client.conn.send(client.encrypt(other_client.addr[0]))
                                 client.conn.send(client.encrypt(key))
+
                             if action == "deny":
+                                # Notify the other client that the request was denied
                                 text = other_client.encrypt("deny:")
                                 other_client.conn.send(text)
+
             except Exception:
                 connected = False
         print(f"[DISCONNECT]")
@@ -157,12 +206,22 @@ class Server:
             pass
 
     def get_user_by_username(self, username) -> Client:
+        """
+        finding other client
+        :param username: username of wanted client
+        :return: a client object
+        """
         for client in self.clients:
             if client.username == username:
                 return client
 
     @staticmethod
     def handel_signup(data, client):
+        """
+        :param data: user personal data
+        :param client: client object
+        :return: boolean
+        """
         values = data.split('/')
         first_name, second_name, username, password = values
 
@@ -187,6 +246,11 @@ class Server:
 
     @staticmethod
     def handel_login(data, client):
+        """
+        :param data: user data input
+        :param client: client object
+        :return: boolean
+        """
         username, password = data.split('/')
 
         conn = sqlite3.connect("users.db")
@@ -215,6 +279,10 @@ class Server:
             return False
 
     def start(self):
+        """
+        starting the server and listening for connections
+        :return: none
+        """
         print("[LISTENING]")
         while True:
             conn, addr = self.server.accept()
@@ -224,4 +292,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    Server("10.100.102.16")
+    Server("10.100.102.20")

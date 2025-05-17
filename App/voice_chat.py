@@ -1,6 +1,7 @@
 from vidstream import AudioSender, AudioReceiver
 import threading
 
+
 class VoiceChat:
     def __init__(self, local_ip, remote_ip, port):
         self.receiver = AudioReceiver(local_ip, port)
